@@ -1,4 +1,4 @@
-package com.ofl.promotion.guide.entity;
+package com.ofl.promotion.manage.guide.entity;
 
 import lombok.Data;
 import lombok.ToString;

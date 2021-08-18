@@ -1,7 +1,7 @@
 package com.ofl.promotion.store;
 
 import com.ofl.promotion.common.entity.ResultDto;
-import com.ofl.promotion.guide.entity.OflGuide;
+import com.ofl.promotion.manage.guide.entity.OflGuide;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 

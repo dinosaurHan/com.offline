@@ -1,7 +1,7 @@
-package com.ofl.promotion.guide;
+package com.ofl.promotion.manage.guide.service;
 
 import com.ofl.promotion.common.entity.ResultDto;
-import com.ofl.promotion.guide.entity.OflGuide;
+import com.ofl.promotion.manage.guide.entity.OflGuide;
 
 public interface IAdsGuideSrv {
     /**
