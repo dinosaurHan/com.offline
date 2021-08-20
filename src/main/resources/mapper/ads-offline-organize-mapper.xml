@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ofl.promotion.manage.organize.mapper.IAdsOfflineOrganizeMapper">
+
+
+    <resultMap id="BaseMap" type="com.ofl.promotion.manage.organize.entity.AdsOfflineOrganize">
+        <result column="organize_id" jdbcType="BIGINT" property="organizeId"></result>
+    </resultMap>
+
+    <select id="query" parameterType="java.util.List" resultMap="BaseMap">
+        select
+            organize_id
+        from
+        ads_offline_organize
+    </select>
+
+</mapper>
