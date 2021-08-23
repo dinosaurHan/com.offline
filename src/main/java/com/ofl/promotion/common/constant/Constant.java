@@ -1,0 +1,44 @@
+package com.ofl.promotion.common.constant;
+
+/**
+ * @Author Mr.quan
+ * @Date 2021/8/21 13:10
+ */
+public class Constant {
+
+    /**
+     * 状态码
+     */
+    public interface Code {
+       int SUCC = 0;
+       int FAIL = -1;
+    }
+
+    /**
+     * 下级机构类型
+     */
+    public interface LowerLevelType {
+        int ORGANIZE = 1;//组织机构
+        int STORE = 2;//门店
+    }
+
+    /**
+     * 返回信息
+     */
+    public interface ResultMsg {
+        String FAIL = "操作失败";
+        String SUCC = "操作成功";
+        String SYSTEM_ERROR = "服务器开小差了";
+        String LOWER_LEVEL_ORG_TYPE_CONFLICT = "下级机构类型冲突";
+    }
+
+    /**
+     * 下级机构类型
+     */
+    public interface LowerLevel{
+        int ONE = 1;//一级
+        int TWO = 2;//二级
+        int THREE = 3;//三级
+        int FOUR = 4;//四级
+    }
+}

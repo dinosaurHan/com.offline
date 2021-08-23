@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ofl.promotion.manage.emp.mapper.IAdsOfflineGuideMapper">
+	<!-- 返回值映射map -->
+	<resultMap id="oflEmpMapper" type="com.ofl.promotion.manage.emp.entity.AdsOfflineEmp">
+			<result property="empId" column="emp_id" />
+			<result property="empName" column="emp_name" />
+			<result property="phone" column="phone" />
+			<result property="delFlag" column="del_flag" />
+			<result property="insertTime" column="insert_time" />
+			<result property="updateTime" column="update_time" />
+	</resultMap>
+	
+	<!-- 查询数量公共sql -->
+	<sql id="count_Tail">
+		select count(1) from ofl_emp record
+	</sql>
+	
+	<!-- 分页公共sql -->
+	<sql id="pagination_tail">
+	  limit #{page.pageOffset} , #{page.pageSize}
+	</sql>
+
+	<!-- 查询字段公共sql -->
+	<sql id="selectAllColumns">
+	    SELECT 
+	    <if test="queryFields != null ">
+	 	     <trim prefix="" suffix="" suffixOverrides=",">
+		        <foreach collection="queryFields" item="fi" index="index">
+		          ${fi},
+		        </foreach>
+		      </trim> 	
+	  	</if>
+	    <if test="queryFields == null ">
+	  		<![CDATA[
+				 emp_id, 
+				 emp_name, 
+				 phone, 
+				 del_flag, 
+				 insert_time, 
+				 update_time 
+			]]>
+	  	</if>
+	     FROM ofl_emp record
+	</sql>
+	
+	<sql id="where_fragement">
+		<where> 
+			<if test="entity!=null">
+					<if test = "entity.empId != null and entity.empId != ''">
+						<![CDATA[ and emp_id  = #{entity.empId} ]]>
+					</if>
+					<if test = "entity.empName != null and entity.empName != ''">
+						<![CDATA[ and emp_name  = #{entity.empName} ]]>
+					</if>
+					<if test = "entity.phone != null and entity.phone != ''">
+						<![CDATA[ and phone  = #{entity.phone} ]]>
+					</if>
+					<if test = "entity.delFlag != null and entity.delFlag != ''">
+						<![CDATA[ and del_flag  = #{entity.delFlag} ]]>
+					</if>
+					<if test = "entity.insertTime != null and entity.insertTime != ''">
+						<![CDATA[ and insert_time  = #{entity.insertTime} ]]>
+					</if>
+					<if test = "entity.updateTime != null and entity.updateTime != ''">
+						<![CDATA[ and update_time  = #{entity.updateTime} ]]>
+					</if>
+			</if>
+		</where>
+	</sql>
+	
+	<sql id="time_sort">
+		order by create_time desc
+	</sql>
+
+	<!-- 分页查询数据集合-->
+	<select id="queryPageOflEmp" resultMap="oflEmpMapper" >
+		<include refid="selectAllColumns"/>
+		<include refid="where_fragement" />
+		<include refid="time_sort" />
+		<if test="page!=null">
+			<include refid="pagination_tail" />
+		</if>
+		
+	</select>
+	
+	<!-- 不分页查询数据集合-->
+	<select id="queryListOflEmp" resultMap="oflEmpMapper" >
+		<include refid="selectAllColumns"/>
+		<include refid="where_fragement" />
+		<include refid="time_sort" />
+	</select>
+	
+	<!-- 查询总数量 -->
+	<select id="queryCountOflEmp" resultType="long">
+		<include refid="count_Tail"></include>
+		<include refid="where_fragement"></include>
+	</select>
+
+	<!-- 查询单个实体 -->
+	<select id="queryOflEmpById" resultMap="oflEmpMapper" >
+		<include refid="selectAllColumns"/>
+		 where 
+		 emp_id = #{id}
+	</select>
+	
+	<!-- 新增列处理 -->
+	<sql id="sql_add_columns">
+		<trim suffixOverrides=",">
+			<if test="empId != null">emp_id,</if>
+			<if test="empName != null">emp_name,</if>
+			<if test="phone != null">phone,</if>
+			<if test="delFlag != null">del_flag,</if>
+			<if test="insertTime != null">insert_time,</if>
+			<if test="updateTime != null">update_time,</if>
+		</trim>
+	</sql>
+
+	<sql id="sql_add_properties">
+		<trim suffixOverrides=",">
+				<if test="empId != null">#{empId},</if>
+				<if test="empName != null">#{empName},</if>
+				<if test="phone != null">#{phone},</if>
+				<if test="delFlag != null">#{delFlag},</if>
+				<if test="insertTime != null">#{insertTime},</if>
+				<if test="updateTime != null">#{updateTime},</if>
+		</trim>		
+	</sql>
+	
+	<!-- 新增 -->
+	<insert id="addOflEmp" parameterType="com.ofl.promotion.manage.emp.entity.filter.AdsOfflineEmpMapFilter">
+		insert into ofl_emp(
+			<include refid="sql_add_columns"/>
+		)values(
+			<include refid="sql_add_properties"/>
+		)
+	</insert>
+
+	<!-- 编辑 -->
+	<update id="updateOflEmp" parameterType="com.ofl.promotion.manage.emp.entity.filter.AdsOfflineEmpMapFilter">
+		update ofl_emp record 
+			<set>
+					<if test = "empId != null ">
+						emp_id = #{empId},
+					</if>
+					<if test = "empName != null ">
+						emp_name = #{empName},
+					</if>
+					<if test = "phone != null ">
+						phone = #{phone},
+					</if>
+					<if test = "delFlag != null ">
+						del_flag = #{delFlag},
+					</if>
+					<if test = "insertTime != null ">
+						insert_time = #{insertTime},
+					</if>
+					<if test = "updateTime != null ">
+						update_time = #{updateTime}
+					</if>
+			</set>
+		where emp_id = #{emp_id}
+	</update>
+	
+	<!-- 删除 -->
+	<delete id="removeOflEmpByIds" parameterType="java.util.List">
+		delete from ofl_emp 
+			where emp_id in
+			<foreach collection="list" open="(" separator="," close=")" item="code">
+				#{code}
+			</foreach>
+	</delete>
+
+	<delete id="removeOflEmpById">
+		delete from ofl_emp 
+		<if test=" id != null and id != ''">
+			where emp_id = #{id}
+		</if>
+	</delete>
+	
+</mapper>

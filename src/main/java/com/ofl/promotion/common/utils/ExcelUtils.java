@@ -56,8 +56,26 @@ public class ExcelUtils {
         //表头字段放入titleList中
         List<String> titleList = new ArrayList<String>();
         for (int i = 0; i < row.getLastCellNum(); i++) {
-            if (row.getCell(i).getStringCellValue().equals("商品ID")){
-                titleList.add("goodName");
+            if (row.getCell(i).getStringCellValue().equals("一级")){
+                titleList.add("oneLevel");
+            }
+            if (row.getCell(i).getStringCellValue().equals("二级（非必填）")){
+                titleList.add("twoLevel");
+            }
+            if (row.getCell(i).getStringCellValue().equals("三级（非必填）")){
+                titleList.add("threeLevel");
+            }
+            if (row.getCell(i).getStringCellValue().equals("四级（非必填）")){
+                titleList.add("fourLevel");
+            }
+            if (row.getCell(i).getStringCellValue().equals("门店")){
+                titleList.add("storeName");
+            }
+            if (row.getCell(i).getStringCellValue().equals("导购姓名")){
+                titleList.add("guideName");
+            }
+            if (row.getCell(i).getStringCellValue().equals("电话")){
+                titleList.add("guidePhone");
             }
         }
         //获得该类的所有属性

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ofl.promotion.manage.store.mapper.IAdsOfflineStoreMapper">
+	<!-- 返回值映射map -->
+	<resultMap id="oflStoreMapper" type="com.ofl.promotion.manage.store.entity.AdsOfflineStore">
+		<result property="storeId" column="store_id" />
+		<result property="storeName" column="store_name" />
+		<result property="organizeId" column="org_id" />
+		<result property="delFlag" column="del_flag" />
+		<result property="insertTime" column="insert_time" />
+		<result property="updateTime" column="update_time" />
+	</resultMap>
+
+	<!-- 新增列处理 -->
+	<sql id="sql_add_columns">
+		<trim suffixOverrides=",">
+			<if test="storeId != null">store_id,</if>
+			<if test="storeName != null">store_name,</if>
+			<if test="organizeId != null">org_id,</if>
+			<if test="delFlag != null">del_flag,</if>
+			insert_time,
+			update_time,
+		</trim>
+	</sql>
+
+	<sql id="sql_add_properties">
+		<trim suffixOverrides=",">
+			<if test="storeId != null">#{storeId},</if>
+			<if test="storeName != null">#{storeName},</if>
+			<if test="organizeId != null">#{organizeId},</if>
+			<if test="delFlag != null">#{delFlag},</if>
+			unix_timestamp(),
+			unix_timestamp(),
+		</trim>
+	</sql>
+
+	<!-- 新增 -->
+	<insert id="add" parameterType="com.ofl.promotion.manage.store.entity.filter.AdsOfflineStoreFilter">
+		insert into ofl_store(
+		<include refid="sql_add_columns"/>
+		)values(
+		<include refid="sql_add_properties"/>
+		)
+	</insert>
+
+	<!-- 查询字段公共sql -->
+	<sql id="selectAllColumns">
+		store_id, store_name, org_id, del_flag, insert_time, update_time
+	</sql>
+
+	<!-- 编辑 -->
+	<update id="updateOflStore" parameterType="com.ofl.promotion.manage.store.entity.filter.AdsOfflineStoreFilter">
+		update ofl_store
+		<set>
+			<if test = "storeName != null ">
+				store_name = #{storeName},
+			</if>
+			<if test = "orgId != null ">
+				org_id = #{orgId},
+			</if>
+			<if test = "delFlag != null ">
+				del_flag = #{delFlag},
+			</if>
+			<if test = "insertTime != null ">
+				insert_time = #{insertTime},
+			</if>
+			<if test = "updateTime != null ">
+				update_time = #{updateTime}
+			</if>
+		</set>
+		<where>
+			<if test = "storeId != null ">
+				store_id = #{storeId},
+			</if>
+		</where>
+	</update>
+
+	<!-- 查询单个实体 -->
+	<select id="queryOflStoreById" resultMap="oflStoreMapper"
+			parameterType="com.ofl.promotion.manage.store.entity.filter.AdsOfflineStoreFilter">
+		select
+		<include refid="selectAllColumns"/>
+		FROM ofl_store
+		<where>
+			<if test = "storeId != null ">
+				store_id = #{storeId},
+			</if>
+		</where>
+
+	</select>
+</mapper>

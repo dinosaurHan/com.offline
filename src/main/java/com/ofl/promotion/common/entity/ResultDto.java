@@ -16,7 +16,12 @@ public class ResultDto<T> {
     public ResultDto() {
     }
 
-    public ResultDto(int ret, String msg,T data) {
+    public ResultDto(int ret, String msg) {
+        this.ret = ret;
+        this.msg = msg;
+    }
+
+    public ResultDto(int ret, String msg, T data) {
         this.ret = ret;
         this.msg = msg;
         this.data = data;

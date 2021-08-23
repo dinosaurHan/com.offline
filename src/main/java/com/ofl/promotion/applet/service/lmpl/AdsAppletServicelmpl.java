@@ -10,6 +10,6 @@ import org.springframework.stereotype.Service;
  */
 @Slf4j
 @Service
-public class AdsAppletService implements IAdsAppletService {
+public class AdsAppletServicelmpl implements IAdsAppletService {
 
 }

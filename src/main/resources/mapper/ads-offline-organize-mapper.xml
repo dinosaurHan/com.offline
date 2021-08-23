@@ -2,16 +2,155 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ofl.promotion.manage.organize.mapper.IAdsOfflineOrganizeMapper">
 
-
-    <resultMap id="BaseMap" type="com.ofl.promotion.manage.organize.entity.AdsOfflineOrganize">
-        <result column="organize_id" jdbcType="BIGINT" property="organizeId"></result>
+    <!-- 返回值映射map -->
+    <resultMap id="oflOrgMapper" type="com.ofl.promotion.manage.organize.entity.AdsOfflineOrganize">
+        <result property="organizeId" column="org_id" />
+        <result property="organizeName" column="org_name" />
+        <result property="organizeLevel" column="org_level" />
+        <result property="status" column="status" />
+        <result property="delFlag" column="del_flag" />
+        <result property="insertTime" column="insert_time" />
+        <result property="updateTime" column="update_time" />
+        <result property="ancestorIds" column="ancestor_ids" />
     </resultMap>
 
-    <select id="query" parameterType="java.util.List" resultMap="BaseMap">
+    <!-- 查询数量公共sql -->
+    <sql id="count_Tail">
+		select count(1) from ofl_org record
+	</sql>
+
+    <!-- 分页公共sql -->
+    <sql id="pagination_tail">
+	  limit #{page.pageOffset} , #{page.pageSize}
+	</sql>
+
+    <!-- 查询字段公共sql -->
+    <sql id="selectAllColumns">
+        org_id,org_name,status,del_flag,insert_time,update_time,org_level,ancestor_ids
+    </sql>
+
+    <sql id="time_sort">
+		order by create_time desc
+	</sql>
+
+    <!-- 查询 -->
+    <select id="findAll" parameterType="com.ofl.promotion.manage.organize.entity.filter.AdsOfflineOrganizeFilter"
+        resultMap="oflOrgMapper" >
         select
-            organize_id
-        from
-        ads_offline_organize
+        <include refid="selectAllColumns"/>
+        FROM ofl_org
+        <where>
+            <if test = "organizeId != null">
+                 and org_id  = #{organizeId}
+            </if>
+            <if test = "organizeName != null and organizeName != ''">
+                and org_name  = #{organizeName}
+            </if>
+            <if test = "status != null">
+                and status  = #{status}
+            </if>
+            <if test = "delFlag != null">
+                and del_flag = #{delFlag}
+            </if>
+            <if test = "insertTime != null">
+                and insert_time  = #{insertTime}
+            </if>
+            <if test = "updateTime != null and updateTime != ''">
+                and update_time  = #{updateTime}
+            </if>
+        </where>
     </select>
+
+    <select id="findOne" parameterType="com.ofl.promotion.manage.organize.entity.filter.AdsOfflineOrganizeFilter"
+            resultMap="oflOrgMapper" >
+        select
+        <include refid="selectAllColumns"/>
+        FROM ofl_org
+        <where>
+            <if test = "organizeId != null">
+                and org_id  = #{organizeId}
+            </if>
+            <if test = "organizeName != null and organizeName != ''">
+                and org_name  = #{organizeName}
+            </if>
+            <if test = "status != null">
+                and status  = #{status}
+            </if>
+            <if test = "delFlag != null">
+                and del_flag = #{delFlag}
+            </if>
+            <if test = "insertTime != null">
+                and insert_time  = #{insertTime}
+            </if>
+            <if test = "updateTime != null and updateTime != ''">
+                and update_time  = #{updateTime}
+            </if>
+        </where>
+        limit 1
+    </select>
+
+    <!-- 新增列处理 -->
+    <sql id="sql_add_columns">
+        <trim suffixOverrides=",">
+            <if test="organizeId != null">org_id,</if>
+            <if test="organizeName != null">org_name,</if>
+            <if test="parentId != null">parent_id,</if>
+            <if test="organizeLevel != null">org_level,</if>
+            <if test="status != null">status,</if>
+            <if test="delFlag != null">del_flag,</if>
+            insert_time,
+            update_time,
+        </trim>
+    </sql>
+
+    <sql id="sql_add_properties">
+        <trim suffixOverrides=",">
+            <if test="organizeId != null">#{orgId},</if>
+            <if test="organizeName != null">#{orgName},</if>
+            <if test="parentId != null">#{parentId},</if>
+            <if test="organizeLevel != null">#{organizeLevel},</if>
+            <if test="status != null">#{status},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            unix_timestamp(),
+            unix_timestamp(),
+        </trim>
+    </sql>
+
+    <!-- 新增 -->
+    <insert id="addOflOrg" parameterType="com.ofl.promotion.manage.organize.entity.filter.AdsOfflineOrganizeFilter">
+        insert into ofl_org(
+        <include refid="sql_add_columns"/>
+        )values(
+        <include refid="sql_add_properties"/>
+        )
+    </insert>
+
+    <!-- 编辑 -->
+    <update id="updateOrg" parameterType="com.ofl.promotion.manage.organize.entity.filter.AdsOfflineOrganizeFilter">
+        update ofl_org
+        <set>
+            <if test = "orgName != null ">
+                org_name = #{orgName},
+            </if>
+            <if test = "status != null ">
+                status = #{status},
+            </if>
+            <if test = "delFlag != null ">
+                del_flag = #{delFlag},
+            </if>
+            <if test = "insertTime != null ">
+                insert_time = #{insertTime},
+            </if>
+            <if test = "updateTime != null ">
+                update_time = #{updateTime}
+            </if>
+        </set>
+        <where>
+            <if test = "organizeId != null ">
+                org_id = #{organizeId},
+            </if>
+        </where>
+    </update>
+
 
 </mapper>

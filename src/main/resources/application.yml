@@ -5,7 +5,7 @@ spring:
     password: root
     driver-class-name: com.mysql.jdbc.Driver
 mybatis:
-  typeAliasesPackage: com.example.dao.entity
+  typeAliasesPackage: com.ofl.promotion.manage.*
   mapperLocations: classpath:mapper/*.xml
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
