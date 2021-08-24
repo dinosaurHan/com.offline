@@ -88,6 +88,21 @@
 				store_id = #{storeId},
 			</if>
 		</where>
-
 	</select>
+
+	<!--storeCount-->
+	<select id="storeCount" resultType="Integer">
+		select count(1)
+		from ofl_store s LEFT JOIN
+		ofl_org o ON(s.org_id = o.org_id)
+		<where>
+			<if test="ancestorIds != null">
+				and o.ancestor_ids like concat(#{ancestorIds},'%')
+			</if>
+			<if test="status != null">
+				and s.status = #{status}
+			</if>
+		</where>
+	</select>
+
 </mapper>

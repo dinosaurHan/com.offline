@@ -41,4 +41,20 @@ public class Constant {
         int THREE = 3;//三级
         int FOUR = 4;//四级
     }
+
+    /**
+     * 机构，门店，导购状态
+     */
+    public interface Status{
+        int OPEN = 1;//启用
+        int STOP = 2;//停用
+    }
+
+    /**
+     * 机构，门店，导购删除状态
+     */
+    public interface DelFlag{
+        int VALID = 0;//有效状态
+        int INVALID = 1;//无效状态
+    }
 }

@@ -1,4 +1,4 @@
-package com.ofl.promotion.manage.store.entity;
+package com.ofl.promotion.manage.guide.entity;
 
 import lombok.Data;
 
@@ -6,25 +6,29 @@ import java.io.Serializable;
 
 /**
  * @Author Mr.quan
- * @Date 2021/8/22 11:59
+ * @Date 2021/8/24 22:02
  */
 @Data
-public class AdsOfflineStore implements Serializable {
+public class AdsOfflineGuide implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     /**
+     * 导购id
+     */
+    private Long guideId;
+    /**
+     * 导购名称
+     */
+    private String guideName;
+    /**
+     * 导购手机号码
+     */
+    private Long phone;
+    /**
      * 门店id
      */
     private Long storeId;
-    /**
-     * 门店名称
-     */
-    private String storeName;
-    /**
-     * 机构id
-     */
-    private Long organizeId;
     /**
      * 状态
      */

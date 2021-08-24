@@ -2,7 +2,7 @@ package com.ofl.promotion.manage.organize.service;
 
 import com.ofl.promotion.common.entity.ResultDto;
 import com.ofl.promotion.manage.organize.entity.AdsOfflineOrganize;
-import com.ofl.promotion.manage.organize.entity.AdsOfflineOrganizeDto;
+import com.ofl.promotion.manage.organize.entity.dto.AdsOfflineOrganizeDto;
 import com.ofl.promotion.manage.organize.entity.filter.AdsOfflineOrganizeFilter;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,7 +26,7 @@ public interface IAdsOflOrganizeService {
 
     ResultDto<List<AdsOfflineOrganize>> queryLowerOrg(AdsOfflineOrganizeFilter filter);
 
-    ResultDto<List<AdsOfflineOrganize>> countOrg(AdsOfflineOrganizeFilter filter);
+    ResultDto<Object> countOrg(AdsOfflineOrganizeFilter filter);
 
     /**
      * 根据organizeId查询机构信息

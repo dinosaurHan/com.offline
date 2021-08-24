@@ -28,4 +28,6 @@ public interface IAdsOfflineOrganizeMapper {
     Long addOflOrg(AdsOfflineOrganizeFilter filter);
 
     int updateOrg(AdsOfflineOrganizeFilter organizeFilter);
+
+    Integer orgCount(AdsOfflineOrganizeFilter filter);
 }

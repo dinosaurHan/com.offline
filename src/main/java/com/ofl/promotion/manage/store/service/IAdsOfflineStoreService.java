@@ -14,4 +14,5 @@ public interface IAdsOfflineStoreService {
      */
     ResultDto<Long> addStore(AdsOfflineStoreFilter filter);
 
+    ResultDto<Integer> storeCount(AdsOfflineStoreFilter filter);
 }

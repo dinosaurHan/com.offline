@@ -1,5 +1,7 @@
-package com.ofl.promotion.manage.organize.entity;
+package com.ofl.promotion.manage.organize.entity.dto;
 
+import com.ofl.promotion.manage.organize.entity.AdsOfflineOrgLead;
+import com.ofl.promotion.manage.organize.entity.AdsOfflineOrganize;
 import lombok.Data;
 
 import java.util.List;

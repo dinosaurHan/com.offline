@@ -10,9 +10,12 @@ import com.ofl.promotion.manage.emp.entity.AdsOfflineEmp;
 import com.ofl.promotion.manage.emp.entity.filter.AdsOfflineEmpFilter;
 import com.ofl.promotion.manage.emp.entity.filter.AdsOfflineEmpMapFilter;
 import com.ofl.promotion.manage.emp.service.IAdsOfflineEmpMapService;
+import com.ofl.promotion.manage.guide.entity.filter.AdsOfflineGuideFilter;
+import com.ofl.promotion.manage.guide.service.IAdsOfflineGuideService;
 import com.ofl.promotion.manage.organize.entity.AdsOfflineOrgLead;
 import com.ofl.promotion.manage.organize.entity.AdsOfflineOrganize;
-import com.ofl.promotion.manage.organize.entity.AdsOfflineOrganizeDto;
+import com.ofl.promotion.manage.organize.entity.AdsOfflineOrganizeCount;
+import com.ofl.promotion.manage.organize.entity.dto.AdsOfflineOrganizeDto;
 import com.ofl.promotion.manage.organize.entity.AdsOfflineOrganizeExcel;
 import com.ofl.promotion.manage.organize.entity.filter.AdsOfflineOrganizeFilter;
 import com.ofl.promotion.manage.store.entity.filter.AdsOfflineStoreFilter;
@@ -28,7 +31,9 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author Mr.quan
@@ -49,6 +54,9 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
 
     @Autowired
     private IAdsOfflineEmpMapService adsOfflineEmpMapService;
+
+    @Autowired
+    private IAdsOfflineGuideService adsOfflineGuideService;
 
     @Override
     public ResultDto<AdsOfflineOrganize> addLowerLevel(AdsOfflineOrganizeFilter filter) {
@@ -374,9 +382,7 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
                 return new ResultDto<>(Constant.Code.FAIL, "organizeId || page || pageSize is Empty");
             }
 
-            int page=1;
-            int pageSize=1;
-            PageHelper.startPage(page,pageSize);
+            PageHelper.startPage(filter.getPage(),filter.getPageSize());
             List<AdsOfflineOrganize> offlineOrganizeList = adsOfflineOrganizeMapper.findAll(filter);
             return new ResultDto<>(0,"操作成功",(Page<AdsOfflineOrganize>)offlineOrganizeList);
         }catch (Exception e){
@@ -386,22 +392,93 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
     }
 
     @Override
-    public ResultDto<List<AdsOfflineOrganize>> countOrg(AdsOfflineOrganizeFilter filter) {
+    public ResultDto<Object> countOrg(AdsOfflineOrganizeFilter filter) {
         try{
             //校验参数
             if (checkOrgId(filter)) return new ResultDto<>(Constant.Code.FAIL, "organizeId is Empty");
 
+            //判断该机构是否存在
+            AdsOfflineOrganize offlineOrganize = adsOfflineOrganizeMapper.findOne(filter);
+            if (offlineOrganize == null || StringUtils.isBlank(offlineOrganize.getAncestorIds())) {
+                return new ResultDto<>(Constant.Code.FAIL,"没有该机构");
+            }
+
             //统计下级数量
+            filter.setAncestorIds(offlineOrganize.getAncestorIds() + ","+ filter.getOrganizeId());
+            AdsOfflineOrganizeCount organizeCount = new AdsOfflineOrganizeCount();
+            Integer orgTotalCount = adsOfflineOrganizeMapper.orgCount(filter);
+            organizeCount.setTotalCount(orgTotalCount);
+            //下级开通量
+            filter.setStatus(Constant.Status.OPEN);
+            Integer orgOpenCount = adsOfflineOrganizeMapper.orgCount(filter);
+            organizeCount.setOpenCount(orgOpenCount);
 
             //统计门店数量
+            AdsOfflineOrganizeCount storeCount = new AdsOfflineOrganizeCount();
+            if (queryStoreCount(filter, storeCount)){
+                return new ResultDto<>(Constant.Code.FAIL, "统计失败");
+            }
 
             //统计导购数量
+            AdsOfflineOrganizeCount guideCount = new AdsOfflineOrganizeCount();
+            if (queryGuideCount(filter,guideCount)) {
+                return new ResultDto<>(Constant.Code.FAIL, "统计失败");
+            }
 
+            //封装结果集
+            Map<String,AdsOfflineOrganizeCount> resultMap = new HashMap<>();
+            resultMap.put("lowerLevelCount",organizeCount);
+            resultMap.put("storeCount",storeCount);
+            resultMap.put("guideCount",guideCount);
 
+            return new ResultDto<>(Constant.Code.SUCC,Constant.ResultMsg.SUCC,resultMap);
         }catch (Exception e){
             log.error("countOrg fail",e);
+            return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SYSTEM_ERROR);
         }
-        return null;
+    }
+
+    private boolean queryGuideCount(AdsOfflineOrganizeFilter filter,AdsOfflineOrganizeCount guideCount) {
+        //查询导购数量
+        AdsOfflineGuideFilter guideFilter = new AdsOfflineGuideFilter();
+        guideFilter.setAncestorIds(filter.getAncestorIds());
+        ResultDto<Integer> guideTotalCountResult = adsOfflineGuideService.guideCount(guideFilter);
+        if (guideTotalCountResult.getRet() != Constant.Code.SUCC){
+            log.error("guide totalCount fail:{}", JSON.toJSONString(guideFilter));
+            return true;
+        }
+        guideCount.setTotalCount(guideTotalCountResult.getData());
+
+        //查询开通导购数量
+        guideFilter.setStatus(Constant.Status.OPEN);
+        ResultDto<Integer> guideOpneCountResult = adsOfflineGuideService.guideCount(guideFilter);
+        if (guideOpneCountResult.getRet() != Constant.Code.SUCC){
+            log.error("guide totalCount fail:{}", JSON.toJSONString(guideFilter));
+            return true;
+        }
+        guideCount.setOpenCount(guideOpneCountResult.getData());
+        return false;
+    }
+
+    private boolean queryStoreCount(AdsOfflineOrganizeFilter filter, AdsOfflineOrganizeCount storeCount) {
+        //查询门店数量
+        AdsOfflineStoreFilter storeFilter = new AdsOfflineStoreFilter();
+        storeFilter.setAncestorIds(filter.getAncestorIds());
+        ResultDto<Integer> storeTotalCount = adsOfflineStoreService.storeCount(storeFilter);
+        if (storeTotalCount.getRet() != Constant.Code.SUCC){
+            log.error("store totalCount fail:{}", JSON.toJSONString(storeFilter));
+            return true;
+        }
+        storeCount.setTotalCount(storeTotalCount.getData());
+        //查询门店开通数量
+        storeFilter.setStatus(Constant.Status.OPEN);
+        ResultDto<Integer> storeOpenCount = adsOfflineStoreService.storeCount(storeFilter);
+        if (storeOpenCount.getRet() != Constant.Code.SUCC){
+            log.error("store openCount fail:{}",JSON.toJSONString(storeFilter));
+            return true;
+        }
+        storeCount.setOpenCount(storeOpenCount.getData());
+        return false;
     }
 
     private boolean checkOrgId(AdsOfflineOrganizeFilter filter) {

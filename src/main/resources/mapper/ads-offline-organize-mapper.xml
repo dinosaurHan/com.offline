@@ -7,6 +7,7 @@
         <result property="organizeId" column="org_id" />
         <result property="organizeName" column="org_name" />
         <result property="organizeLevel" column="org_level" />
+        <result property="ancestorIds" column="ancestor_ids" />
         <result property="status" column="status" />
         <result property="delFlag" column="del_flag" />
         <result property="insertTime" column="insert_time" />
@@ -14,10 +15,20 @@
         <result property="ancestorIds" column="ancestor_ids" />
     </resultMap>
 
-    <!-- 查询数量公共sql -->
-    <sql id="count_Tail">
-		select count(1) from ofl_org record
-	</sql>
+    <!-- 查询数量 -->
+    <select id="orgCount" resultType="Integer"
+            parameterType="com.ofl.promotion.manage.organize.entity.filter.AdsOfflineOrganizeFilter">
+		select count(1)
+		from ofl_org
+		<where>
+            <if test="ancestorIds != null">
+                and ancestor_ids like concat(#{ancestorIds},'%')
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+        </where>
+	</select>
 
     <!-- 分页公共sql -->
     <sql id="pagination_tail">

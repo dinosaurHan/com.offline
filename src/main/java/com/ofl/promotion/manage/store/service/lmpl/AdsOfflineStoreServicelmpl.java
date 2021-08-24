@@ -42,4 +42,19 @@ public class AdsOfflineStoreServicelmpl implements IAdsOfflineStoreService {
             return new ResultDto<>(Constant.Code.FAIL, Constant.ResultMsg.SYSTEM_ERROR);
         }
     }
+
+    @Override
+    public ResultDto<Integer> storeCount(AdsOfflineStoreFilter filter) {
+        try{
+            if (StringUtils.isBlank(filter.getAncestorIds())){
+                log.error("ancestorIds param invalid:{}", JSON.toJSONString(filter));
+                return new ResultDto<>(Constant.Code.FAIL,"ancestorIds is empty");
+            }
+
+            return new ResultDto<>(Constant.Code.SUCC,Constant.ResultMsg.SUCC,adsOfflineStoreMapper.storeCount(filter));
+        }catch (Exception e){
+            log.error("storeCount fail",e);
+            return new ResultDto<>(Constant.Code.FAIL, Constant.ResultMsg.SYSTEM_ERROR);
+        }
+    }
 }

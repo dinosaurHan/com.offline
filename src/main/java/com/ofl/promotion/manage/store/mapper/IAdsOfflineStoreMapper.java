@@ -10,4 +10,5 @@ public interface IAdsOfflineStoreMapper {
 
     Long add(AdsOfflineStoreFilter filter);
 
+    int storeCount(AdsOfflineStoreFilter filter);
 }

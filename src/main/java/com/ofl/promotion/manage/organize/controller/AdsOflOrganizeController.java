@@ -1,19 +1,15 @@
 package com.ofl.promotion.manage.organize.controller;
 
-import com.ofl.promotion.common.constant.Constant;
 import com.ofl.promotion.common.entity.ResultDto;
 import com.ofl.promotion.manage.organize.entity.AdsOfflineOrganize;
-import com.ofl.promotion.manage.organize.entity.AdsOfflineOrganizeDto;
+import com.ofl.promotion.manage.organize.entity.dto.AdsOfflineOrganizeDto;
 import com.ofl.promotion.manage.organize.entity.filter.AdsOfflineOrganizeFilter;
 import com.ofl.promotion.manage.organize.service.IAdsOflOrganizeService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -80,7 +76,7 @@ public class AdsOflOrganizeController {
      * 下级组织机构信息查询（分页）
      */
     @RequestMapping("/count")
-    public ResultDto<List<AdsOfflineOrganize>> countOrg(@RequestBody AdsOfflineOrganizeFilter filter){
+    public ResultDto<Object> countOrg(@RequestBody AdsOfflineOrganizeFilter filter){
         return adsOflOrganizeService.countOrg(filter);
     }
 
