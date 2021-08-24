@@ -1,7 +1,8 @@
 package com.ofl.promotion.common.utils;
 
 import io.jsonwebtoken.*;
-import org.apache.commons.codec.binary.Base64;
+import org.apache.tomcat.util.codec.binary.Base64;
+import org.springframework.util.Base64Utils;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -42,8 +43,14 @@ public class JwtUtils {
         return builder.compact();
     }
 
+    public static void main(String[] args) throws Exception {
+        String sss = createJWT("13", "OFFLINE_PROMOTION", 5 * 60*1000);
+
+        System.out.println(sss);
+    }
+
     public static SecretKey generalKey() {
-        byte[] encodedKey = Base64.decodeBase64(SECRECT);
+        byte[] encodedKey = Base64Utils.decodeFromString(SECRECT);
         SecretKey key = new SecretKeySpec(encodedKey, 0, encodedKey.length, "AES");
         return key;
     }
