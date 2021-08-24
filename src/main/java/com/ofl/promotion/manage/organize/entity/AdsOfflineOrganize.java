@@ -3,9 +3,7 @@ package com.ofl.promotion.manage.organize.entity;
 import com.ofl.promotion.common.entity.AdsOfflineRequestParam;
 import lombok.Data;
 
-import java.awt.*;
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * @Author Mr.quan

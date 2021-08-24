@@ -43,12 +43,6 @@ public class JwtUtils {
         return builder.compact();
     }
 
-    public static void main(String[] args) throws Exception {
-        String sss = createJWT("13", "OFFLINE_PROMOTION", 5 * 60*1000);
-
-        System.out.println(sss);
-    }
-
     public static SecretKey generalKey() {
         byte[] encodedKey = Base64Utils.decodeFromString(SECRECT);
         SecretKey key = new SecretKeySpec(encodedKey, 0, encodedKey.length, "AES");
