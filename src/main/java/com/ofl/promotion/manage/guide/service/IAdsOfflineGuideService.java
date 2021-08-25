@@ -11,4 +11,5 @@ public interface IAdsOfflineGuideService {
 
     ResultDto<Integer> guideCount(AdsOfflineGuideFilter filter);
 
+    ResultDto<Void> export(AdsOfflineGuideFilter filter);
 }

@@ -7,8 +7,9 @@ import lombok.Data;
  * @Date 2021/8/24 23:50
  */
 @Data
-public class AdsOfflineRequestParam {
+public class AdsOfflineBaseParam {
 
     private String token;
 
+    private String basePhone;
 }

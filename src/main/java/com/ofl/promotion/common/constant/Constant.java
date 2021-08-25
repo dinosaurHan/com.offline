@@ -32,6 +32,7 @@ public class Constant {
         String LOWER_LEVEL_ORG_TYPE_CONFLICT = "下级机构类型冲突";
         String TOKEN_INVALID = "登录态失效，请重新登录";
         String LOGIN_FAIL = "登录失败";
+        String PARAM_INVALID_FAIL = "参数无效";
     }
 
     /**

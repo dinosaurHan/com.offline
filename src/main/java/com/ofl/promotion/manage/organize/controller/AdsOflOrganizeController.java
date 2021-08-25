@@ -1,6 +1,6 @@
 package com.ofl.promotion.manage.organize.controller;
 
-import com.ofl.promotion.aop.VerifyToken;
+import com.ofl.promotion.aop.LoginAuthentication;
 import com.ofl.promotion.common.entity.ResultDto;
 import com.ofl.promotion.manage.organize.entity.AdsOfflineOrganize;
 import com.ofl.promotion.manage.organize.entity.dto.AdsOfflineOrganizeDto;
@@ -77,7 +77,7 @@ public class AdsOflOrganizeController {
      * 下级组织机构信息查询（分页）
      */
     @RequestMapping("/count")
-    @VerifyToken
+    @LoginAuthentication
     public ResultDto<Object> countOrg(@RequestBody AdsOfflineOrganizeFilter filter){
         return adsOflOrganizeService.countOrg(filter);
     }

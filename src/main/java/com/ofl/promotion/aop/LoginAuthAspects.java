@@ -1,7 +1,7 @@
 package com.ofl.promotion.aop;
 
 import com.ofl.promotion.common.constant.Constant;
-import com.ofl.promotion.common.entity.AdsOfflineRequestParam;
+import com.ofl.promotion.common.entity.AdsOfflineBaseParam;
 import com.ofl.promotion.common.entity.ResultDto;
 import com.ofl.promotion.common.utils.JwtUtils;
 import io.jsonwebtoken.Claims;
@@ -26,7 +26,7 @@ import java.util.Date;
 @Configuration
 @Order(value= Ordered.HIGHEST_PRECEDENCE + 20)
 @Slf4j
-public class VerifyTokenAspect {
+public class LoginAuthAspects {
 
 //    @Resource
 //    private StringRedisTemplate stringRedisTemplate;
@@ -34,30 +34,34 @@ public class VerifyTokenAspect {
 //    @Resource
 //    private RedisTemplate redisTemplate;
 
-    @Around("@annotation(verifyToken)")
-    public Object verifyToken(ProceedingJoinPoint pjp, VerifyToken verifyToken) throws Throwable{
-        Object[] args = pjp.getArgs();
-        AdsOfflineRequestParam param = null;
-        for (Object object : args) {
-            if (object instanceof AdsOfflineRequestParam){
-                param = (AdsOfflineRequestParam)object;
-                break;
-            }
-        }
-
-        //获取token
-        String token = param.getToken();
-        if (StringUtils.isBlank(token)){
-            log.error("token is blank");
-            throw new RuntimeException("校验失败");
-        }
+    @Around("@annotation(loginAuthentication)")
+    public Object verifyToken(ProceedingJoinPoint pjp, LoginAuthentication loginAuthentication) throws Throwable{
+        AdsOfflineBaseParam param = new AdsOfflineBaseParam();
         try {
+            Object[] args = pjp.getArgs();
+            for (Object object : args) {
+                if (object instanceof AdsOfflineBaseParam){
+                    param = (AdsOfflineBaseParam)object;
+                    break;
+                }
+            }
+
+            //获取token
+            String token = param.getToken();
+            if (StringUtils.isBlank(token)){
+                log.error("token is blank");
+                throw new RuntimeException("校验失败");
+            }
+
             Claims claims = JwtUtils.parseJWT(token);
             Date expiration = claims.getExpiration();
             //当前时间大于设置的过期时间，失效
             if (new Date().getTime() > expiration.getTime()){
                 return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.TOKEN_INVALID);
             }
+            //获取token中用户手机号
+            param.setBasePhone(claims.getSubject());
+
         } catch (SignatureException | MalformedJwtException e){
             //token illegality
             log.warn("The token is illegality:",e);
@@ -71,7 +75,8 @@ public class VerifyTokenAspect {
             if (new Date().getTime() > expiration.getTime()){
                 return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.TOKEN_INVALID);
             }
-
+            //获取token中用户手机号
+            param.setBasePhone(claims.getSubject());
         }
 
         //4.process on

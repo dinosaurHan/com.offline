@@ -1,6 +1,6 @@
 package com.ofl.promotion.manage.guide.entity;
 
-import com.ofl.promotion.common.entity.AdsOfflineRequestParam;
+import com.ofl.promotion.common.entity.AdsOfflineBaseParam;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -10,7 +10,7 @@ import java.io.Serializable;
  * @Date 2021/8/24 22:02
  */
 @Data
-public class AdsOfflineGuide extends AdsOfflineRequestParam implements Serializable {
+public class AdsOfflineGuide extends AdsOfflineBaseParam implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

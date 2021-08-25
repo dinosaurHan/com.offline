@@ -57,4 +57,10 @@ public class AdsOfflineStoreServicelmpl implements IAdsOfflineStoreService {
             return new ResultDto<>(Constant.Code.FAIL, Constant.ResultMsg.SYSTEM_ERROR);
         }
     }
+
+    @Override
+    public ResultDto<Void> export(AdsOfflineStoreFilter filter) {
+
+        return null;
+    }
 }

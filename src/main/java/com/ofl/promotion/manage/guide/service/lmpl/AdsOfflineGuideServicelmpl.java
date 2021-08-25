@@ -35,4 +35,10 @@ public class AdsOfflineGuideServicelmpl implements IAdsOfflineGuideService {
             return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SYSTEM_ERROR);
         }
     }
+
+    @Override
+    public ResultDto<Void> export(AdsOfflineGuideFilter filter) {
+
+        return null;
+    }
 }
