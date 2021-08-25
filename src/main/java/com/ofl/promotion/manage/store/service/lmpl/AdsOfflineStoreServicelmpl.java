@@ -3,6 +3,7 @@ package com.ofl.promotion.manage.store.service.lmpl;
 import com.alibaba.fastjson.JSON;
 import com.ofl.promotion.common.constant.Constant;
 import com.ofl.promotion.common.entity.ResultDto;
+import com.ofl.promotion.manage.guide.entity.filter.AdsOfflineGuideFilter;
 import com.ofl.promotion.manage.store.entity.filter.AdsOfflineStoreFilter;
 import com.ofl.promotion.manage.store.mapper.IAdsOfflineStoreMapper;
 import com.ofl.promotion.manage.store.service.IAdsOfflineStoreService;
@@ -61,6 +62,32 @@ public class AdsOfflineStoreServicelmpl implements IAdsOfflineStoreService {
     @Override
     public ResultDto<Void> export(AdsOfflineStoreFilter filter) {
 
+        return null;
+    }
+
+    @Override
+    public ResultDto<Object> queryStore(AdsOfflineGuideFilter filter) {
+        try{
+            if (filter.getOrganizeId() == null){
+                log.error("organizeId is empty");
+                return new ResultDto<>(Constant.Code.FAIL,"organizeId is empty");
+            }
+
+            //判断该机构是否存在
+//            AdsOfflineOrganize offlineOrganize = adsOfflineOrganizeMapper.findOne(filter);
+//            if (offlineOrganize == null || StringUtils.isBlank(offlineOrganize.getAncestorIds())) {
+//                return new ResultDto<>(Constant.Code.FAIL,"没有该机构");
+//            }
+
+            //查询导购
+
+
+            //获取上级信息
+
+
+        }catch (Exception e){
+            log.error("store query fail",e);
+        }
         return null;
     }
 }

@@ -69,7 +69,7 @@ public class AdsOflOrganizeController {
      * 查询下级机构
      */
     @RequestMapping("/lower/query")
-    public ResultDto<List<AdsOfflineOrganize>> queryLowerOrg(@RequestBody AdsOfflineOrganizeFilter filter){
+    public ResultDto<Object> queryLowerOrg(@RequestBody AdsOfflineOrganizeFilter filter){
         return adsOflOrganizeService.queryLowerOrg(filter);
     }
 

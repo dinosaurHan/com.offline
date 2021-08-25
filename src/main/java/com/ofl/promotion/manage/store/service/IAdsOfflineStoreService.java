@@ -1,6 +1,7 @@
 package com.ofl.promotion.manage.store.service;
 
 import com.ofl.promotion.common.entity.ResultDto;
+import com.ofl.promotion.manage.guide.entity.filter.AdsOfflineGuideFilter;
 import com.ofl.promotion.manage.store.entity.filter.AdsOfflineStoreFilter;
 
 /**
@@ -17,4 +18,6 @@ public interface IAdsOfflineStoreService {
     ResultDto<Integer> storeCount(AdsOfflineStoreFilter filter);
 
     ResultDto<Void> export(AdsOfflineStoreFilter filter);
+
+    ResultDto<Object> queryStore(AdsOfflineGuideFilter filter);
 }

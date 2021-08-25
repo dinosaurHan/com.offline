@@ -3,6 +3,7 @@ package com.ofl.promotion.manage.organize.service.lmpl;
 import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.ofl.promotion.common.constant.Constant;
 import com.ofl.promotion.common.entity.ResultDto;
 import com.ofl.promotion.common.utils.ExcelUtils;
@@ -366,7 +367,6 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
 
             filter.setParentId(filter.getOrganizeId());
             filter.setOrganizeId(null);
-
             return new ResultDto<>(0,"操作成功",adsOfflineOrganizeMapper.findAll(filter));
         }catch (Exception e){
             log.error("queryOrgTree fail",e);
@@ -375,16 +375,18 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
     }
 
     @Override
-    public ResultDto<List<AdsOfflineOrganize>> queryLowerOrg(AdsOfflineOrganizeFilter filter) {
+    public ResultDto<Object> queryLowerOrg(AdsOfflineOrganizeFilter filter) {
         try{
             if (filter.getPage() == 0 || filter.getPageSize() == 0 || filter.getOrganizeId() == null){
                 log.error("queryOrgTree organizeId  || page || pageSize is Empty param:{}",JSON.toJSONString(filter));
                 return new ResultDto<>(Constant.Code.FAIL, "organizeId || page || pageSize is Empty");
             }
 
+            //设置分页
             PageHelper.startPage(filter.getPage(),filter.getPageSize());
             List<AdsOfflineOrganize> offlineOrganizeList = adsOfflineOrganizeMapper.findAll(filter);
-            return new ResultDto<>(0,"操作成功",(Page<AdsOfflineOrganize>)offlineOrganizeList);
+
+            return new ResultDto<>(0,"操作成功",new PageInfo<>(offlineOrganizeList));
         }catch (Exception e){
             log.error("queryLowerOrg fail",e);
             return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SYSTEM_ERROR);

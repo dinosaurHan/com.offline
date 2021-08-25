@@ -19,8 +19,20 @@ public class AdsOfflineGuideController {
     @Autowired
     private IAdsOfflineGuideService adsOfflineGuideService;
 
+    /**
+     * 导购导出
+     */
     @RequestMapping("/export")
     public ResultDto<Void> export(AdsOfflineGuideFilter filter){
         return adsOfflineGuideService.export(filter);
     }
+
+    /**
+     * 导购列表查询
+     */
+    @RequestMapping("/query")
+    public ResultDto<Object> queryGuide(AdsOfflineGuideFilter filter){
+        return adsOfflineGuideService.queryGuide(filter);
+    }
+
 }

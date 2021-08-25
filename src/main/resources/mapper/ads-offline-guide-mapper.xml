@@ -30,5 +30,28 @@
 			</if>
 		</where>
 	</select>
-	
+
+	<select id="">
+		select
+			g.guide_id,
+			g.guide_name,
+			g.phone,
+			g.store_id,
+			g.status,
+			g.update_time,
+			s.store_name
+		from ofl_org o
+		LEFT JOIN ofl_store s
+		ON(o.org_id = s.org_id)
+		LEFT JOIN ofl_guide g
+		ON (g.store_id = s.store_id)
+		<where>
+			<if test="ancestorIds != null">
+				and o.ancestor_ids like concat(#{ancestorIds},'%')
+			</if>
+			<if test="status != null">
+				and g.status = #{status}
+			</if>
+		</where>
+	</select>
 </mapper>

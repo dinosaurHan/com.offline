@@ -1,6 +1,7 @@
 package com.ofl.promotion.manage.store.controller;
 
 import com.ofl.promotion.common.entity.ResultDto;
+import com.ofl.promotion.manage.guide.entity.filter.AdsOfflineGuideFilter;
 import com.ofl.promotion.manage.store.entity.filter.AdsOfflineStoreFilter;
 import com.ofl.promotion.manage.store.service.IAdsOfflineStoreService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,16 @@ public class AdsOfflineStoreController {
     @Autowired
     private IAdsOfflineStoreService adsOfflineStoreService;
 
+    /**
+     * 门店查询（分页）
+     */
+    public ResultDto<Object> queryStore(AdsOfflineGuideFilter filter){
+        return adsOfflineStoreService.queryStore(filter);
+    }
+
+    /**
+     * 门店导出
+     */
     @RequestMapping("/export")
     public ResultDto<Void> export(AdsOfflineStoreFilter filter){
         return adsOfflineStoreService.export(filter);

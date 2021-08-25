@@ -24,7 +24,7 @@ public interface IAdsOflOrganizeService {
 
     ResultDto<List<AdsOfflineOrganize>> queryOrgTree(AdsOfflineOrganizeFilter filter);
 
-    ResultDto<List<AdsOfflineOrganize>> queryLowerOrg(AdsOfflineOrganizeFilter filter);
+    ResultDto<Object> queryLowerOrg(AdsOfflineOrganizeFilter filter);
 
     ResultDto<Object> countOrg(AdsOfflineOrganizeFilter filter);
 
