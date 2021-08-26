@@ -1,6 +1,7 @@
 package com.ofl.promotion.manage.organize.service;
 
 import com.ofl.promotion.common.entity.ResultDto;
+import com.ofl.promotion.manage.guide.entity.filter.AdsOfflineGuideFilter;
 import com.ofl.promotion.manage.organize.entity.AdsOfflineOrganize;
 import com.ofl.promotion.manage.organize.entity.dto.AdsOfflineOrganizeDto;
 import com.ofl.promotion.manage.organize.entity.filter.AdsOfflineOrganizeFilter;
@@ -32,4 +33,6 @@ public interface IAdsOflOrganizeService {
      * 根据organizeId查询机构信息
      */
     ResultDto<AdsOfflineOrganize> queryOrg(AdsOfflineOrganizeFilter filter);
+
+    ResultDto<List<AdsOfflineOrganize>> queryHigherLevel(AdsOfflineOrganizeFilter filter);
 }

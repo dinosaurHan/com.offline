@@ -12,6 +12,10 @@ import java.io.Serializable;
 @Data
 public class AdsOfflineGuideFilter extends AdsOfflineGuide implements Serializable {
 
+    private int page;
+
+    private int pageSize;
+
     private Long organizeId;
 
     private String ancestorIds;

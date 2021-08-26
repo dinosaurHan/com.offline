@@ -13,6 +13,16 @@
 		<result property="insertTime" column="insert_time" />
 		<result property="updateTime" column="update_time" />
 	</resultMap>
+
+	<!---->
+	<resultMap id="guideMapper" type="com.ofl.promotion.manage.guide.entity.AdsOfflineGuideVo">
+		<result property="guideId" column="guide_id" />
+		<result property="guideName" column="guide_name" />
+		<result property="phone" column="phone" />
+		<result property="storeId" column="store_id" />
+		<result property="status" column="status" />
+		<result property="updateTime" column="update_time" />
+	</resultMap>
 	
 	<!-- 查询数量 -->
 	<select id="guideCount" resultType="Integer">
@@ -31,7 +41,8 @@
 		</where>
 	</select>
 
-	<select id="">
+	<select id="findAll" parameterType="com.ofl.promotion.manage.guide.entity.filter.AdsOfflineGuideFilter"
+			resultMap="guideMapper">
 		select
 			g.guide_id,
 			g.guide_name,
@@ -40,10 +51,10 @@
 			g.status,
 			g.update_time,
 			s.store_name
-		from ofl_org o
+		from ofl_guide g
 		LEFT JOIN ofl_store s
-		ON(o.org_id = s.org_id)
-		LEFT JOIN ofl_guide g
+		ON(s.store_id = g.store_id)
+		LEFT JOIN ofl_org o
 		ON (g.store_id = s.store_id)
 		<where>
 			<if test="ancestorIds != null">
@@ -52,6 +63,16 @@
 			<if test="status != null">
 				and g.status = #{status}
 			</if>
+			<if test="guideName != null">
+				and g.guide_name like concat('%',#{guideName},'%')
+			</if>
+			<if test="guideId != null">
+				and g.guide_id = #{guideId}
+			</if>
+			<if test="phone != null">
+				and g.phone = #{phone}
+			</if>
 		</where>
 	</select>
+
 </mapper>

@@ -1,6 +1,10 @@
 package com.ofl.promotion.manage.guide.mapper;
 
+import com.ofl.promotion.manage.guide.entity.AdsOfflineGuide;
+import com.ofl.promotion.manage.guide.entity.AdsOfflineGuideVo;
 import com.ofl.promotion.manage.guide.entity.filter.AdsOfflineGuideFilter;
+
+import java.util.List;
 
 /**
  * @Author Mr.quan
@@ -9,4 +13,6 @@ import com.ofl.promotion.manage.guide.entity.filter.AdsOfflineGuideFilter;
 public interface IAdsOfflineGuideMapper {
 
     Integer guideCount(AdsOfflineGuideFilter filter);
+
+    List<AdsOfflineGuideVo> findAll(AdsOfflineGuideFilter queryFilter);
 }

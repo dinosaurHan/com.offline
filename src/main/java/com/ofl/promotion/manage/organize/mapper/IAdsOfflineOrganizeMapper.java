@@ -30,4 +30,6 @@ public interface IAdsOfflineOrganizeMapper {
     int updateOrg(AdsOfflineOrganizeFilter organizeFilter);
 
     Integer orgCount(AdsOfflineOrganizeFilter filter);
+
+    List<AdsOfflineOrganize> findHigherLevel(AdsOfflineOrganizeFilter filter);
 }

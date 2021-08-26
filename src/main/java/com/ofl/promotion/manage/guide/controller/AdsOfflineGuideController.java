@@ -5,6 +5,7 @@ import com.ofl.promotion.manage.guide.entity.filter.AdsOfflineGuideFilter;
 import com.ofl.promotion.manage.guide.service.IAdsOfflineGuideService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,7 +24,7 @@ public class AdsOfflineGuideController {
      * 导购导出
      */
     @RequestMapping("/export")
-    public ResultDto<Void> export(AdsOfflineGuideFilter filter){
+    public ResultDto<Void> export(@RequestBody AdsOfflineGuideFilter filter){
         return adsOfflineGuideService.export(filter);
     }
 
@@ -31,7 +32,7 @@ public class AdsOfflineGuideController {
      * 导购列表查询
      */
     @RequestMapping("/query")
-    public ResultDto<Object> queryGuide(AdsOfflineGuideFilter filter){
+    public ResultDto<Object> queryGuide(@RequestBody AdsOfflineGuideFilter filter){
         return adsOfflineGuideService.queryGuide(filter);
     }
 

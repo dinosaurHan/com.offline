@@ -51,8 +51,8 @@
         <include refid="selectAllColumns"/>
         FROM ofl_org
         <where>
-            <if test = "organizeId != null">
-                 and org_id  = #{organizeId}
+            <if test = "ancestorIds != null">
+                and ancestor_ids like concat(#{ancestorIds},'%')
             </if>
             <if test = "organizeName != null and organizeName != ''">
                 and org_name  = #{organizeName}
@@ -60,15 +60,13 @@
             <if test = "status != null">
                 and status  = #{status}
             </if>
-            <if test = "delFlag != null">
-                and del_flag = #{delFlag}
-            </if>
             <if test = "insertTime != null">
                 and insert_time  = #{insertTime}
             </if>
             <if test = "updateTime != null and updateTime != ''">
                 and update_time  = #{updateTime}
             </if>
+            and del_flag = 0
         </where>
     </select>
 
@@ -87,15 +85,13 @@
             <if test = "status != null">
                 and status  = #{status}
             </if>
-            <if test = "delFlag != null">
-                and del_flag = #{delFlag}
-            </if>
             <if test = "insertTime != null">
                 and insert_time  = #{insertTime}
             </if>
             <if test = "updateTime != null and updateTime != ''">
                 and update_time  = #{updateTime}
             </if>
+            and del_flag = 0
         </where>
         limit 1
     </select>
@@ -163,5 +159,16 @@
         </where>
     </update>
 
-
+    <select id="findHigherLevel" parameterType="com.ofl.promotion.manage.organize.entity.filter.AdsOfflineOrganizeFilter"
+            resultMap="oflOrgMapper">
+        select
+        <include refid="selectAllColumns"/>
+        FROM ofl_org
+        <where>
+            <if test = "parentIds != null">
+                and parent_id in(${parentIds})
+            </if>
+        </where>
+        ORDER BY org_level ASC
+    </select>
 </mapper>

@@ -59,6 +59,8 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
     @Autowired
     private IAdsOfflineGuideService adsOfflineGuideService;
 
+    private static final String COMMA = ",";
+
     @Override
     public ResultDto<AdsOfflineOrganize> addLowerLevel(AdsOfflineOrganizeFilter filter) {
         try {
@@ -382,11 +384,18 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
                 return new ResultDto<>(Constant.Code.FAIL, "organizeId || page || pageSize is Empty");
             }
 
+            //判断该机构是否存在
+            AdsOfflineOrganize offlineOrganize = adsOfflineOrganizeMapper.findOne(filter);
+            if (offlineOrganize == null || StringUtils.isBlank(offlineOrganize.getAncestorIds())) {
+                return new ResultDto<>(Constant.Code.FAIL,"没有该机构");
+            }
+
             //设置分页
             PageHelper.startPage(filter.getPage(),filter.getPageSize());
+            filter.setAncestorIds(offlineOrganize.getAncestorIds()+COMMA+filter.getOrganizeId());
             List<AdsOfflineOrganize> offlineOrganizeList = adsOfflineOrganizeMapper.findAll(filter);
 
-            return new ResultDto<>(0,"操作成功",new PageInfo<>(offlineOrganizeList));
+            return new ResultDto<>(Constant.Code.SUCC,Constant.ResultMsg.SUCC,new PageInfo<>(offlineOrganizeList));
         }catch (Exception e){
             log.error("queryLowerOrg fail",e);
             return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SYSTEM_ERROR);
@@ -495,6 +504,17 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
     public ResultDto<AdsOfflineOrganize> queryOrg(AdsOfflineOrganizeFilter filter) {
         try{
             return new ResultDto<>(Constant.Code.SUCC,null,adsOfflineOrganizeMapper.findOne(filter));
+        }catch (Exception e){
+            log.error("queryOrg fail",e);
+            return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SYSTEM_ERROR);
+        }
+    }
+
+    @Override
+    public ResultDto<List<AdsOfflineOrganize>> queryHigherLevel(AdsOfflineOrganizeFilter filter) {
+        try{
+
+            return  new ResultDto<>(Constant.Code.SUCC,null,adsOfflineOrganizeMapper.findHigherLevel(filter));
         }catch (Exception e){
             log.error("queryOrg fail",e);
             return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SYSTEM_ERROR);
