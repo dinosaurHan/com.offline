@@ -4,7 +4,16 @@
 
 <mapper namespace="com.ofl.promotion.manage.store.mapper.IAdsOfflineStoreMapper">
 	<!-- 返回值映射map -->
-	<resultMap id="oflStoreMapper" type="com.ofl.promotion.manage.store.entity.AdsOfflineStore">
+	<resultMap id="BaseMapper" type="com.ofl.promotion.manage.store.entity.AdsOfflineStore">
+		<result property="storeId" column="store_id" />
+		<result property="storeName" column="store_name" />
+		<result property="organizeId" column="org_id" />
+		<result property="delFlag" column="del_flag" />
+		<result property="insertTime" column="insert_time" />
+		<result property="updateTime" column="update_time" />
+	</resultMap>
+
+	<resultMap id="storeByOrgMapper" type="com.ofl.promotion.manage.store.entity.AdsOfflineStoreVo">
 		<result property="storeId" column="store_id" />
 		<result property="storeName" column="store_name" />
 		<result property="organizeId" column="org_id" />
@@ -78,7 +87,7 @@
 	</update>
 
 	<!-- 查询单个实体 -->
-	<select id="queryOflStoreById" resultMap="oflStoreMapper"
+	<select id="queryOflStoreById" resultMap="BaseMapper"
 			parameterType="com.ofl.promotion.manage.store.entity.filter.AdsOfflineStoreFilter">
 		select
 		<include refid="selectAllColumns"/>
@@ -105,4 +114,27 @@
 		</where>
 	</select>
 
+	<select id="findAllByOrgIds" parameterType="com.ofl.promotion.manage.store.entity.filter.AdsOfflineStoreFilter"
+			resultMap="storeByOrgMapper">
+		SELECT
+			s.store_id,
+			s.store_name,
+			s.org_id,
+			s.status,
+			s.update_time
+		from ofl_store s
+		LEFT JOIN ofl_org o
+		ON(s.org_id = o.org_id)
+		<where>
+			<if test="ancestorIds != null">
+				and o.ancestor_ids like concat(#{ancestorIds},'%')
+			</if>
+			<if test="status != null">
+				and s.status = #{status}
+			</if>
+			<if test="storeName != null">
+				and s.store_name like concat('%',#{storeName},'%')
+			</if>
+		</where>
+	</select>
 </mapper>

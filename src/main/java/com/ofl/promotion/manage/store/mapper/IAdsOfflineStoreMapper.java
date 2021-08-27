@@ -1,6 +1,9 @@
 package com.ofl.promotion.manage.store.mapper;
 
+import com.ofl.promotion.manage.store.entity.AdsOfflineStoreVo;
 import com.ofl.promotion.manage.store.entity.filter.AdsOfflineStoreFilter;
+
+import java.util.List;
 
 /**
  * @Author Mr.quan
@@ -11,4 +14,6 @@ public interface IAdsOfflineStoreMapper {
     Long add(AdsOfflineStoreFilter filter);
 
     int storeCount(AdsOfflineStoreFilter filter);
+
+    List<AdsOfflineStoreVo> findAllByOrgIds(AdsOfflineStoreFilter store);
 }

@@ -19,5 +19,5 @@ public interface IAdsOfflineStoreService {
 
     ResultDto<Void> export(AdsOfflineStoreFilter filter);
 
-    ResultDto<Object> queryStore(AdsOfflineGuideFilter filter);
+    ResultDto<Object> queryStore(AdsOfflineStoreFilter filter);
 }

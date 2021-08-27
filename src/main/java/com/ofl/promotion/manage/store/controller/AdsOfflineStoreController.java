@@ -5,6 +5,7 @@ import com.ofl.promotion.manage.guide.entity.filter.AdsOfflineGuideFilter;
 import com.ofl.promotion.manage.store.entity.filter.AdsOfflineStoreFilter;
 import com.ofl.promotion.manage.store.service.IAdsOfflineStoreService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,7 +23,8 @@ public class AdsOfflineStoreController {
     /**
      * 门店查询（分页）
      */
-    public ResultDto<Object> queryStore(AdsOfflineGuideFilter filter){
+    @RequestMapping("/query")
+    public ResultDto<Object> queryStore(@RequestBody AdsOfflineStoreFilter filter){
         return adsOfflineStoreService.queryStore(filter);
     }
 

@@ -15,4 +15,8 @@ public class AdsOfflineStoreFilter extends AdsOfflineStore implements Serializab
     private static final long serialVersionUID = 1L;
 
     private String ancestorIds;
+
+    private int page;
+
+    private int pageSize;
 }
