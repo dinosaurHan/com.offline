@@ -1,6 +1,7 @@
 package com.ofl.promotion.applet.service;
 
 import com.ofl.promotion.applet.entity.AdsOfflineApplet;
+import com.ofl.promotion.applet.entity.AdsOfflineAppletInfo;
 import com.ofl.promotion.applet.entity.filter.AdsOfflineAppletFilter;
 import com.ofl.promotion.common.entity.ResultDto;
 
@@ -12,9 +13,11 @@ public interface IAdsOfflineAppletService {
 
     ResultDto<AdsOfflineApplet> getUserInfo(AdsOfflineAppletFilter filter);
 
-    ResultDto<AdsOfflineApplet> getUserDetalInfo(AdsOfflineAppletFilter filter);
+    ResultDto<AdsOfflineAppletInfo> getUserDetalInfo(AdsOfflineAppletFilter filter);
 
     ResultDto<AdsOfflineApplet> getBusinessData(AdsOfflineAppletFilter filter);
 
     ResultDto<String> login(AdsOfflineAppletFilter filter);
+
+    ResultDto<AdsOfflineApplet> getBusinessDataInfo(AdsOfflineAppletFilter filter);
 }

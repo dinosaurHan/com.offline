@@ -520,4 +520,14 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
             return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SYSTEM_ERROR);
         }
     }
+
+    @Override
+    public ResultDto<Void> batchUpdOrgStatus(AdsOfflineOrganizeFilter filter) {
+        return null;
+    }
+
+    @Override
+    public ResultDto<Void> delOrg(AdsOfflineOrganizeFilter filter) {
+        return null;
+    }
 }

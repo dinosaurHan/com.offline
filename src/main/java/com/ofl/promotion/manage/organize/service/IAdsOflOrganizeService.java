@@ -35,4 +35,8 @@ public interface IAdsOflOrganizeService {
     ResultDto<AdsOfflineOrganize> queryOrg(AdsOfflineOrganizeFilter filter);
 
     ResultDto<List<AdsOfflineOrganize>> queryHigherLevel(AdsOfflineOrganizeFilter filter);
+
+    ResultDto<Void> batchUpdOrgStatus(AdsOfflineOrganizeFilter filter);
+
+    ResultDto<Void> delOrg(AdsOfflineOrganizeFilter filter);
 }

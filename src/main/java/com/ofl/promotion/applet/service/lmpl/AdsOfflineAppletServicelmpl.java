@@ -2,19 +2,28 @@ package com.ofl.promotion.applet.service.lmpl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.Lists;
 import com.ofl.promotion.applet.entity.AdsOfflineApplet;
+import com.ofl.promotion.applet.entity.AdsOfflineAppletInfo;
 import com.ofl.promotion.applet.entity.filter.AdsOfflineAppletFilter;
 import com.ofl.promotion.applet.service.IAdsOfflineAppletService;
 import com.ofl.promotion.common.constant.Constant;
 import com.ofl.promotion.common.entity.ResultDto;
 import com.ofl.promotion.common.utils.JwtUtils;
+import com.ofl.promotion.common.utils.QrCodeUtils;
 import com.ofl.promotion.common.utils.WechatUtils;
+import com.ofl.promotion.manage.data.service.IAdsOfflineDataService;
+import com.ofl.promotion.manage.guide.entity.AdsOfflineGuide;
+import com.ofl.promotion.manage.guide.entity.AdsOfflineGuideAuth;
+import com.ofl.promotion.manage.guide.entity.filter.AdsOfflineGuideFilter;
 import com.ofl.promotion.manage.guide.service.IAdsOfflineGuideService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * @Author Mr.quan
@@ -27,8 +36,10 @@ public class AdsOfflineAppletServicelmpl implements IAdsOfflineAppletService {
     @Autowired
     private IAdsOfflineGuideService adsOfflineGuideService;
 
-//    @Autowired
-//    private RedisTemplate redisTemplate;
+    @Autowired
+    private IAdsOfflineDataService adsOfflineDataService;
+
+    private final static String QR_CODE_URL = "";
 
     @Override
     public ResultDto<String> login(AdsOfflineAppletFilter filter) {
@@ -66,6 +77,17 @@ public class AdsOfflineAppletServicelmpl implements IAdsOfflineAppletService {
     }
 
     @Override
+    public ResultDto<AdsOfflineApplet> getBusinessDataInfo(AdsOfflineAppletFilter filter) {
+        try{
+
+        }catch (Exception e){
+            log.error("getBusinessDataInfo fail",e);
+            return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SYSTEM_ERROR);
+        }
+        return null;
+    }
+
+    @Override
     public ResultDto<AdsOfflineApplet> getUserInfo(AdsOfflineAppletFilter filter) {
         try{
             if (StringUtils.isBlank(filter.getBasePhone())){
@@ -74,12 +96,32 @@ public class AdsOfflineAppletServicelmpl implements IAdsOfflineAppletService {
             }
 
             //查询导购id
+            AdsOfflineGuideFilter guide = new AdsOfflineGuideFilter();
+            guide.setPhone(filter.getBasePhone());
+            ResultDto<AdsOfflineGuideAuth> resultDto = adsOfflineGuideService.findGuideDyAuth(guide);
+            if (resultDto.getRet() != Constant.Code.SUCC){
+                log.error("find guide error param:{}",JSON.toJSONString(filter));
+                return new ResultDto<>(Constant.Code.FAIL,"查询失败");
+            }
 
-            //查询开通业务
+            if (resultDto.getData() == null){
+                log.error("find guide is empty param:{}",JSON.toJSONString(filter));
+                return new ResultDto<>(Constant.Code.FAIL,"没有该导购");
+            }
+
+            AdsOfflineApplet adsOfflineApplet = new AdsOfflineApplet();
+            adsOfflineApplet.setGuideId(resultDto.getData().getGuideId());
+            //查询抖音业务
+            AdsOfflineGuideAuth guideAuth = resultDto.getData();
+            if (StringUtils.isNotBlank(guideAuth.getDyId())) {
+                List<Integer> openBusiness = Lists.newArrayList();
+                openBusiness.add(Constant.Business.DOUYIN);
+                adsOfflineApplet.setOpenBusiness(openBusiness);
+            }
 
             //获取二维码
-
-            return new ResultDto<>();
+            adsOfflineApplet.setQrCode(QrCodeUtils.crateB64QRCode(QR_CODE_URL, 200, 200));
+            return new ResultDto<>(Constant.Code.SUCC,Constant.ResultMsg.SUCC,adsOfflineApplet);
         }catch (Exception e){
             log.error("getUserInfo fail",e);
             return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SYSTEM_ERROR);
@@ -87,9 +129,32 @@ public class AdsOfflineAppletServicelmpl implements IAdsOfflineAppletService {
     }
 
     @Override
-    public ResultDto<AdsOfflineApplet> getUserDetalInfo(AdsOfflineAppletFilter filter) {
+    public ResultDto<AdsOfflineAppletInfo> getUserDetalInfo(AdsOfflineAppletFilter filter) {
         try{
-            return new ResultDto<>();
+            if (StringUtils.isBlank(filter.getBasePhone())){
+                log.error("getUserInfo phone is empty");
+                return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.PARAM_INVALID_FAIL);
+            }
+
+            AdsOfflineGuideFilter guide = new AdsOfflineGuideFilter();
+            guide.setPhone(filter.getBasePhone());
+            ResultDto<AdsOfflineGuide> guideResultDto = adsOfflineGuideService.findOne(guide);
+            if (guideResultDto.getRet() != Constant.Code.SUCC){
+                log.error("find guide error param:{}",JSON.toJSONString(filter));
+                return new ResultDto<>(Constant.Code.FAIL,"查询导购失败");
+            }
+
+            if (guideResultDto.getData() == null){
+                log.error("find guide is empty param:{}",JSON.toJSONString(filter));
+                return new ResultDto<>(Constant.Code.FAIL,"没有该导购");
+            }
+
+            AdsOfflineAppletInfo info = new AdsOfflineAppletInfo();
+            info.setName(guideResultDto.getData().getGuideName());
+            info.setPhone(guideResultDto.getData().getPhone());
+            info.setHigherLevelName(guideResultDto.getData().getStoreName());
+
+            return new ResultDto<>(Constant.Code.SUCC,Constant.ResultMsg.SUCC,info);
         }catch (Exception e){
             log.error("getUserDetalInfo fail",e);
             return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SYSTEM_ERROR);

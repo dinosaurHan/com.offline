@@ -2,6 +2,7 @@ package com.ofl.promotion.applet.controller;
 
 import com.ofl.promotion.aop.LoginAuthentication;
 import com.ofl.promotion.applet.entity.AdsOfflineApplet;
+import com.ofl.promotion.applet.entity.AdsOfflineAppletInfo;
 import com.ofl.promotion.applet.entity.filter.AdsOfflineAppletFilter;
 import com.ofl.promotion.applet.service.IAdsOfflineAppletService;
 import com.ofl.promotion.common.entity.ResultDto;
@@ -44,7 +45,7 @@ public class AdsOfflineAppletController {
      */
     @RequestMapping("/personal/getUserInfo")
     @LoginAuthentication
-    public ResultDto<AdsOfflineApplet> getUserDetalInfo(AdsOfflineAppletFilter filter){
+    public ResultDto<AdsOfflineAppletInfo> getUserDetalInfo(AdsOfflineAppletFilter filter){
         return adsAppletService.getUserDetalInfo(filter);
     }
 
@@ -57,4 +58,12 @@ public class AdsOfflineAppletController {
         return adsAppletService.getBusinessData(filter);
     }
 
+    /**
+     * 获取业务数据
+     */
+    @RequestMapping("/business/getDataInfo")
+    @LoginAuthentication
+    public ResultDto<AdsOfflineApplet> getBusinessDataInfo(AdsOfflineAppletFilter filter){
+        return adsAppletService.getBusinessDataInfo(filter);
+    }
 }

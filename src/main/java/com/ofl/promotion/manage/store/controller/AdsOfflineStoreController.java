@@ -40,4 +40,17 @@ public class AdsOfflineStoreController {
     public void export(@RequestBody AdsOfflineStoreFilter filter, HttpServletResponse response){
         adsOfflineStoreService.export(filter, response);
     }
+
+    /**
+     * 批量启用停用
+     */
+    @RequestMapping("/batch/upd")
+    public ResultDto<Void> batchUpdStatus(@RequestBody AdsOfflineStoreFilter filter){
+        return adsOfflineStoreService.batchUpdStoreStatus(filter);
+    }
+
+    @RequestMapping("/del")
+    public ResultDto<Void> delStore(@RequestBody AdsOfflineStoreFilter filter){
+        return adsOfflineStoreService.delStore(filter);
+    }
 }

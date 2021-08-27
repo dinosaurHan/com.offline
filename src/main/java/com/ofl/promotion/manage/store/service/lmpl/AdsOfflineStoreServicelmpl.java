@@ -151,6 +151,28 @@ public class AdsOfflineStoreServicelmpl implements IAdsOfflineStoreService {
         }
     }
 
+    @Override
+    public ResultDto<Void> batchUpdStoreStatus(AdsOfflineStoreFilter filter) {
+        try{
+
+        }catch (Exception e){
+            log.error("batchUpdStoreStatus fail",e);
+            return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SYSTEM_ERROR);
+        }
+        return null;
+    }
+
+    @Override
+    public ResultDto<Void> delStore(AdsOfflineStoreFilter filter) {
+        try{
+
+        }catch (Exception e){
+            log.error("delStore fail",e);
+            return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SYSTEM_ERROR);
+        }
+        return null;
+    }
+
     private void addOrgHightLevel(List<AdsOfflineStoreVo>  storeVoList) {
         for (AdsOfflineStoreVo adsOfflineStoreVo : storeVoList) {
             String ancestorIds = adsOfflineStoreVo.getAncestorIds();

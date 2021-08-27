@@ -41,4 +41,16 @@ public class AdsOfflineGuideController {
         return adsOfflineGuideService.queryGuide(filter);
     }
 
+    /**
+     * 批量启用停用
+     */
+    @RequestMapping("/batch/upd")
+    public ResultDto<Void> batchUpdGuideStatus(@RequestBody AdsOfflineGuideFilter filter){
+        return adsOfflineGuideService.batchUpdGuideStatus(filter);
+    }
+
+    @RequestMapping("/del")
+    public ResultDto<Void> delGuide(@RequestBody AdsOfflineGuideFilter filter){
+        return adsOfflineGuideService.delGuide(filter);
+    }
 }

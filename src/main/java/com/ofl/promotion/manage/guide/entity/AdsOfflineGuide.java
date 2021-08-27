@@ -46,4 +46,8 @@ public class AdsOfflineGuide extends AdsOfflineBaseParam implements Serializable
      * 更新时间
      */
     private Long updateTime;
+    /**
+     * 更新时间
+     */
+    private String storeName;
 }

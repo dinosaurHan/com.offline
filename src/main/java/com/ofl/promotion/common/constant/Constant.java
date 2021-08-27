@@ -60,4 +60,12 @@ public class Constant {
         int VALID = 0;//有效状态
         int INVALID = 1;//无效状态
     }
+
+    /**
+     * 开通业务
+     */
+    public interface Business{
+        int DOUYIN = 1;
+    }
+
 }

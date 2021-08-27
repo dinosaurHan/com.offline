@@ -25,4 +25,8 @@ public interface IAdsOfflineStoreService {
     void export(AdsOfflineStoreFilter filter, HttpServletResponse response);
 
     ResultDto<PageInfo<AdsOfflineStoreVo>> queryStore(AdsOfflineStoreFilter filter);
+
+    ResultDto<Void> batchUpdStoreStatus(AdsOfflineStoreFilter filter);
+
+    ResultDto<Void> delStore(AdsOfflineStoreFilter filter);
 }

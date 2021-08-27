@@ -2,6 +2,7 @@ package com.ofl.promotion.manage.organize.controller;
 
 import com.ofl.promotion.aop.LoginAuthentication;
 import com.ofl.promotion.common.entity.ResultDto;
+import com.ofl.promotion.manage.guide.entity.filter.AdsOfflineGuideFilter;
 import com.ofl.promotion.manage.organize.entity.AdsOfflineOrganize;
 import com.ofl.promotion.manage.organize.entity.dto.AdsOfflineOrganizeDto;
 import com.ofl.promotion.manage.organize.entity.filter.AdsOfflineOrganizeFilter;
@@ -82,4 +83,16 @@ public class AdsOflOrganizeController {
         return adsOflOrganizeService.countOrg(filter);
     }
 
+    /**
+     * 批量启用停用
+     */
+    @RequestMapping("/batch/upd")
+    public ResultDto<Void> batchUpdStatus(@RequestBody AdsOfflineOrganizeFilter filter){
+        return adsOflOrganizeService.batchUpdOrgStatus(filter);
+    }
+
+    @RequestMapping("/del")
+    public ResultDto<Void> delGuide(@RequestBody AdsOfflineOrganizeFilter filter) {
+        return adsOflOrganizeService.delOrg(filter);
+    }
 }

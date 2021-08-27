@@ -4,6 +4,7 @@ import com.ofl.promotion.common.entity.AdsOfflineBaseParam;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @Author Mr.quan
@@ -14,6 +15,11 @@ public class AdsOfflineApplet extends AdsOfflineBaseParam implements Serializabl
 
     private static final long serialVersionUID = 1L;
 
+    private Long guideId;
+
+    private String qrCode;
+
+    private List<Integer> openBusiness;
 
 
 }

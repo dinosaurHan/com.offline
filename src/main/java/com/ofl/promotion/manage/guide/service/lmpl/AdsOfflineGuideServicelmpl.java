@@ -3,11 +3,14 @@ package com.ofl.promotion.manage.guide.service.lmpl;
 import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.ofl.promotion.applet.entity.filter.AdsOfflineAppletFilter;
 import com.ofl.promotion.common.constant.Constant;
 import com.ofl.promotion.common.entity.ResultDto;
 import com.ofl.promotion.common.enums.OrgStatusEnum;
 import com.ofl.promotion.common.utils.DateUtils;
 import com.ofl.promotion.common.utils.ExcelUtils;
+import com.ofl.promotion.manage.guide.entity.AdsOfflineGuide;
+import com.ofl.promotion.manage.guide.entity.AdsOfflineGuideAuth;
 import com.ofl.promotion.manage.guide.entity.AdsOfflineGuideVo;
 import com.ofl.promotion.manage.guide.entity.filter.AdsOfflineGuideFilter;
 import com.ofl.promotion.manage.guide.mapper.IAdsOfflineGuideMapper;
@@ -148,6 +151,49 @@ public class AdsOfflineGuideServicelmpl implements IAdsOfflineGuideService {
             return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SYSTEM_ERROR);
         }
 
+    }
+
+    @Override
+    public ResultDto<AdsOfflineGuide> findOne(AdsOfflineGuideFilter filter) {
+        try{
+            return new ResultDto<>(Constant.Code.SUCC,Constant.ResultMsg.SUCC,adsOfflineGuideMapper.findOne(filter));
+        }catch (Exception e){
+            log.error("guide findOne fail",e);
+            return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SYSTEM_ERROR);
+        }
+    }
+
+    @Override
+    public ResultDto<AdsOfflineGuideAuth> findGuideDyAuth(AdsOfflineGuideFilter filter) {
+        try{
+            return new ResultDto<>(Constant.Code.SUCC,Constant.ResultMsg.SUCC,adsOfflineGuideMapper.findGuideDyAuth(filter));
+        }catch (Exception e){
+            log.error("guide findOne fail",e);
+            return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SYSTEM_ERROR);
+
+        }
+    }
+
+    @Override
+    public ResultDto<Void> batchUpdGuideStatus(AdsOfflineGuideFilter filter) {
+        try{
+
+        }catch (Exception e){
+            log.error("batchUpdGuideStatus fail",e);
+            return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SYSTEM_ERROR);
+        }
+        return null;
+    }
+
+    @Override
+    public ResultDto<Void> delGuide(AdsOfflineGuideFilter filter) {
+        try{
+
+        }catch (Exception e){
+            log.error("delGuide fail",e);
+            return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SYSTEM_ERROR);
+        }
+        return null;
     }
 
     private void addOrgHightLevel(List<AdsOfflineGuideVo> guideList) {
