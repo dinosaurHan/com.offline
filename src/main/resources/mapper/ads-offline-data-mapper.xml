@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ofl.promotion.manage.data.mapper.IAdsOfflineDataMapper">
+	<!-- 返回值映射map -->
+	<resultMap id="BaseMapper" type="com.ofl.promotion.manage.data.entity.AdsOfflineDouyinData">
+		<result property="id" column="id" />
+		<result property="dyId" column="dy_id" />
+		<result property="firstLevel" column="first_level" />
+		<result property="secondLevel" column="second_level" />
+		<result property="thirdLevel" column="third_level" />
+		<result property="fourLevel" column="four_level" />
+		<result property="guideId" column="guide_id" />
+		<result property="guidePhone" column="guide_phone" />
+		<result property="newCount" column="new_count" />
+		<result property="invCount" column="inv_count" />
+	</resultMap>
+
+
+	<sql id="selectAllColumns">
+		id, dy_id, first_level, second_level, third_level, four_level, guide_id, guide_phone, new_count,
+		inv_count, store_name, guide_name
+	</sql>
+
+	<!-- 查询 -->
+	<select id="findAll" parameterType="com.ofl.promotion.manage.data.entity.filter.AdsOfflineDataFilter"
+			resultMap="BaseMapper" >
+		SELECT d.dy_id, d.first_level, d.second_level, d.third_level, d.four_level, d.guide_id, d.guide_phone, d.new_count,
+			d.inv_count, d.store_name, d.guide_name
+		from ofl_douyin d
+		LEFT JOIN ofl_guide g
+		on(d.guide_id = g.guide_id)
+		LEFT JOIN ofl_store s
+		ON(g.store_id = s.store_id)
+		LEFT JOIN  ofl_org o
+		ON(s.org_id = o.org_id)
+		<where>
+			<if test="ancestorIds != null and ancestorIds != ''">
+				and o.ancestor_ids like concat(#{ancestorIds},'%')
+			</if>
+			<if test="storeName != null and storeName != ''">
+				and store_name = #{storeName}
+			</if>
+			<if test="guideName != null and guideName != ''">
+				and guide_name = #{guideName}
+			</if>
+			<if test="guideId != null">
+				and guide_id = #{guideId}
+			</if>
+		</where>
+	</select>
+
+</mapper>

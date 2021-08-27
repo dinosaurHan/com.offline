@@ -8,7 +8,6 @@ import com.ofl.promotion.common.entity.ResultDto;
 import com.ofl.promotion.common.enums.OrgStatusEnum;
 import com.ofl.promotion.common.utils.DateUtils;
 import com.ofl.promotion.common.utils.ExcelUtils;
-import com.ofl.promotion.manage.guide.entity.AdsOfflineGuide;
 import com.ofl.promotion.manage.guide.entity.AdsOfflineGuideVo;
 import com.ofl.promotion.manage.guide.entity.filter.AdsOfflineGuideFilter;
 import com.ofl.promotion.manage.guide.mapper.IAdsOfflineGuideMapper;
@@ -23,11 +22,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.List;
 
 /**
@@ -138,6 +135,7 @@ public class AdsOfflineGuideServicelmpl implements IAdsOfflineGuideService {
             queryFilter.setGuideName(filter.getGuideName());
             queryFilter.setStatus(filter.getStatus());
             queryFilter.setPhone(filter.getPhone());
+            //设置分页
             PageHelper.startPage(filter.getPage(),filter.getPageSize());
             List<AdsOfflineGuideVo> guideList = adsOfflineGuideMapper.findAll(queryFilter);
 
