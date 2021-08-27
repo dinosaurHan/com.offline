@@ -1,8 +1,13 @@
 package com.ofl.promotion.manage.store.service;
 
+import com.github.pagehelper.PageInfo;
 import com.ofl.promotion.common.entity.ResultDto;
 import com.ofl.promotion.manage.guide.entity.filter.AdsOfflineGuideFilter;
+import com.ofl.promotion.manage.store.entity.AdsOfflineStoreVo;
 import com.ofl.promotion.manage.store.entity.filter.AdsOfflineStoreFilter;
+
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
  * @Author Mr.quan
@@ -17,7 +22,7 @@ public interface IAdsOfflineStoreService {
 
     ResultDto<Integer> storeCount(AdsOfflineStoreFilter filter);
 
-    ResultDto<Void> export(AdsOfflineStoreFilter filter);
+    void export(AdsOfflineStoreFilter filter, HttpServletResponse response);
 
-    ResultDto<Object> queryStore(AdsOfflineStoreFilter filter);
+    ResultDto<PageInfo<AdsOfflineStoreVo>> queryStore(AdsOfflineStoreFilter filter);
 }

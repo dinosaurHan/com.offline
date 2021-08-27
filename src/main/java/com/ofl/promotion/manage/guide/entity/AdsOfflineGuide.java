@@ -25,7 +25,7 @@ public class AdsOfflineGuide extends AdsOfflineBaseParam implements Serializable
     /**
      * 导购手机号码
      */
-    private Long phone;
+    private String phone;
     /**
      * 门店id
      */

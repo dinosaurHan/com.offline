@@ -166,7 +166,7 @@
         FROM ofl_org
         <where>
             <if test = "parentIds != null">
-                and parent_id in(${parentIds})
+                and org_id in(${parentIds})
             </if>
         </where>
         ORDER BY org_level ASC

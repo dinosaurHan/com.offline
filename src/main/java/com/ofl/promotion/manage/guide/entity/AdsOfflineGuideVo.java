@@ -9,7 +9,7 @@ import java.io.Serializable;
  * @Date 2021/8/27 0:08
  */
 @Data
-public class AdsOfflineGuideVo extends AdsOfflineGuide {
+public class AdsOfflineGuideVo {
 
     private String oneLevel;//一级
 
@@ -21,4 +21,23 @@ public class AdsOfflineGuideVo extends AdsOfflineGuide {
 
     private String storeName;//门店名称
 
+    private String guideName;//导购名称
+
+    private String phone;//导购手机号码
+
+    private Long guideId;//导购id
+
+    private String strUpdateTime;//更新时间
+
+    private String statusName;//状态名称
+
+    private Integer status;
+
+    private Long updateTime;//更新时间
+
+    private Long storeId;//门店id
+
+    private String ancestorIds;//上级id集合
+
+    private Long organizeId;//组织id
 }

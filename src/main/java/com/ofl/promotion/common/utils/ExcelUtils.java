@@ -1,11 +1,15 @@
 package com.ofl.promotion.common.utils;
 
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.hssf.usermodel.*;
+import org.apache.poi.ss.formula.functions.T;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.beans.PropertyDescriptor;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -19,6 +23,7 @@ import java.util.List;
  * @Author Mr.quan
  * @Date 2021/8/15 20:53
  */
+@Slf4j
 public class ExcelUtils {
 
     private final static String excel2003L =".xls";    //2003- 版本的excel
@@ -219,6 +224,105 @@ public class ExcelUtils {
                 break;
         }
         return value;
+    }
+
+
+    public static HSSFWorkbook export(String sheetTitle, String[] title, Object[] list) {
+
+        HSSFWorkbook wb = new HSSFWorkbook();//创建excel表
+        HSSFSheet sheet = wb.createSheet(sheetTitle);
+        sheet.setDefaultColumnWidth(20);//设置默认行宽
+
+        //表头样式（加粗，水平居中，垂直居中）
+        HSSFCellStyle cellStyle = wb.createCellStyle();
+        cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);//垂直居中
+
+        HSSFFont fontStyle = wb.createFont();
+        cellStyle.setFont(fontStyle);
+
+        //标题样式（加粗，垂直居中）
+        HSSFCellStyle cellStyle2 = wb.createCellStyle();
+        cellStyle2.setVerticalAlignment(VerticalAlignment.CENTER);//垂直居中
+        cellStyle2.setFont(fontStyle);
+
+        //字段样式（垂直居中）
+        HSSFCellStyle cellStyle3 = wb.createCellStyle();
+        cellStyle3.setVerticalAlignment(VerticalAlignment.CENTER);//垂直居中
+
+        //创建表头
+        HSSFRow row = sheet.createRow(0);
+        row.setHeightInPoints(20);//行高
+
+        HSSFCell cell = row.createCell(0);
+        cell.setCellValue(sheetTitle);
+        cell.setCellStyle(cellStyle);
+
+        sheet.addMergedRegion(new CellRangeAddress(0,0,0,(title.length-1)));
+
+        //创建标题
+        HSSFRow rowTitle = sheet.createRow(1);
+        rowTitle.setHeightInPoints(20);
+
+        HSSFCell hc;
+        for (int i = 0; i < title.length; i++) {
+            hc = rowTitle.createCell(i);
+            hc.setCellValue(title[i]);
+            hc.setCellStyle(cellStyle2);
+        }
+
+        ByteArrayOutputStream out = null;
+        try {
+            //创建表格数据
+            Field[] fields;
+            int i = 2;
+            for (Object obj : list) {
+                fields = obj.getClass().getDeclaredFields();
+                HSSFRow rowBody = sheet.createRow(i);
+                rowBody.setHeightInPoints(20);
+
+                int j = 0;
+                for (Field f : fields) {
+
+                    //返回结果字段大于列数 忽略
+                    if (j >= title.length){
+                        continue;
+                    }
+
+                    f.setAccessible(true);
+                    Object va = f.get(obj);
+                    if (null == va) {
+                        va = "";
+                    }
+
+                    hc = rowBody.createCell(j);
+                    hc.setCellValue(va.toString());
+                    hc.setCellStyle(cellStyle3);
+
+                    j++;
+                }
+                i++;
+            }
+
+            return wb;
+        } catch (Exception ex) {
+            log.error("export fail",ex);
+        } finally{
+            try {
+                if(null != out){
+                    out.close();
+                }
+            } catch (IOException ex) {
+                log.error("export IOException",ex);
+            } finally{
+                try {
+                    wb.close();
+                } catch (IOException ex) {
+                    log.error("export IOException",ex);
+                }
+            }
+        }
+
+        return wb;
     }
 
 }

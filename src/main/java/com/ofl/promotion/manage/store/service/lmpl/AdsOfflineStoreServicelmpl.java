@@ -5,6 +5,10 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.ofl.promotion.common.constant.Constant;
 import com.ofl.promotion.common.entity.ResultDto;
+import com.ofl.promotion.common.enums.OrgStatusEnum;
+import com.ofl.promotion.common.utils.DateUtils;
+import com.ofl.promotion.common.utils.ExcelUtils;
+import com.ofl.promotion.manage.guide.entity.AdsOfflineGuideVo;
 import com.ofl.promotion.manage.organize.entity.AdsOfflineOrganize;
 import com.ofl.promotion.manage.organize.entity.filter.AdsOfflineOrganizeFilter;
 import com.ofl.promotion.manage.organize.service.IAdsOflOrganizeService;
@@ -14,10 +18,14 @@ import com.ofl.promotion.manage.store.mapper.IAdsOfflineStoreMapper;
 import com.ofl.promotion.manage.store.service.IAdsOfflineStoreService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 /**
@@ -35,6 +43,11 @@ public class AdsOfflineStoreServicelmpl implements IAdsOfflineStoreService {
     private IAdsOflOrganizeService adsOflOrganizeService;
 
     private static final String COMMA = ",";
+
+    //excel标题
+    private static final String[] STORE_TITLE = {"一级","二级","三级","四级","门店名称","上次操作时间","状态"};
+
+    private static final String STORE_FILE_NAME = "门店表";
 
     @Override
     public ResultDto<Long> addStore(AdsOfflineStoreFilter filter) {
@@ -73,13 +86,39 @@ public class AdsOfflineStoreServicelmpl implements IAdsOfflineStoreService {
     }
 
     @Override
-    public ResultDto<Void> export(AdsOfflineStoreFilter filter) {
+    public void export(AdsOfflineStoreFilter filter,HttpServletResponse response) {
+        try{
+            ResultDto<PageInfo<AdsOfflineStoreVo>> pageInfoResultDto = queryStore(filter);
+            if (pageInfoResultDto.getRet() != Constant.Code.SUCC){
+                log.error("export query guide fail ret:{}|msg:{}",pageInfoResultDto.getRet(),pageInfoResultDto.getMsg());
+                return;
+            }
 
-        return null;
+            //获取数据
+            List<AdsOfflineStoreVo> storeVoList = getAdsOfflineStoreResult(pageInfoResultDto);
+
+            //excel文件名
+            String fileName = STORE_FILE_NAME+System.currentTimeMillis()+".xls";
+
+            Object[] objects = storeVoList.toArray();
+            //创建HSSFWorkbook
+            HSSFWorkbook wb = ExcelUtils.export(STORE_FILE_NAME, STORE_TITLE, objects);
+
+            //响应到客户端
+            setResponseHeader(response, fileName);
+            OutputStream os = response.getOutputStream();
+            wb.write(os);
+            os.flush();
+            os.close();
+            return;
+        }catch (Exception e){
+            log.error("guide export",e);
+            return ;
+        }
     }
 
     @Override
-    public ResultDto<Object> queryStore(AdsOfflineStoreFilter filter) {
+    public ResultDto<PageInfo<AdsOfflineStoreVo>> queryStore(AdsOfflineStoreFilter filter) {
         try{
             if (filter.getOrganizeId() == null || filter.getPage() == 0 || filter.getPageSize() == 0){
                 log.error("organizeId is empty");
@@ -103,16 +142,8 @@ public class AdsOfflineStoreServicelmpl implements IAdsOfflineStoreService {
             PageHelper.startPage(filter.getPage(),filter.getPageSize());
             List<AdsOfflineStoreVo> storeVoList = adsOfflineStoreMapper.findAllByOrgIds(store);
 
-            //获取上级信息
-            AdsOfflineOrganizeFilter organize = new AdsOfflineOrganizeFilter();
-            organize.setParentIds(organizeResult.getData().getAncestorIds() + COMMA + filter.getOrganizeId());
-            ResultDto<List<AdsOfflineOrganize>> organizeResultDto = adsOflOrganizeService.queryHigherLevel(organize);
-            if (organizeResultDto.getRet() != Constant.Code.SUCC || CollectionUtils.isEmpty(organizeResultDto.getData())){
-                log.error("queryHigherLevel fail:{}", JSON.toJSONString(organize));
-                return new ResultDto<>(Constant.Code.FAIL,"查询上级机构失败");
-            }
-
-            addOrgHightLevel(storeVoList,organizeResultDto);
+            //添加上级信息
+            addOrgHightLevel(storeVoList);
             return new ResultDto<>(Constant.Code.SUCC,Constant.ResultMsg.SUCC,new PageInfo<>(storeVoList));
         }catch (Exception e){
             log.error("store query fail",e);
@@ -120,32 +151,83 @@ public class AdsOfflineStoreServicelmpl implements IAdsOfflineStoreService {
         }
     }
 
-    private void addOrgHightLevel(List<AdsOfflineStoreVo>  storeVoList, ResultDto<List<AdsOfflineOrganize>> organizeResultDto) {
+    private void addOrgHightLevel(List<AdsOfflineStoreVo>  storeVoList) {
         for (AdsOfflineStoreVo adsOfflineStoreVo : storeVoList) {
+            String ancestorIds = adsOfflineStoreVo.getAncestorIds();
+            if (StringUtils.isBlank(ancestorIds)){
+                continue;
+            }
+
+            //查询所有上级信息
+            AdsOfflineOrganizeFilter organize = new AdsOfflineOrganizeFilter();
+            //剔除超级管理员层级
+            String subAncestorIds = adsOfflineStoreVo.getAncestorIds().substring(4,ancestorIds.length());
+            organize.setParentIds(subAncestorIds + COMMA + adsOfflineStoreVo.getOrganizeId());
+            ResultDto<List<AdsOfflineOrganize>> organizeResultDto = adsOflOrganizeService.queryHigherLevel(organize);
+            if (organizeResultDto.getRet() != Constant.Code.SUCC || CollectionUtils.isEmpty(organizeResultDto.getData())){
+                log.error("queryHigherLevel fail:{}", JSON.toJSONString(organize));
+                return;
+            }
+
             int level = 1;
+            //封装上级信息
             for (AdsOfflineOrganize offlineOrganize : organizeResultDto.getData()) {
                 if (StringUtils.isBlank(offlineOrganize.getOrganizeName())){
                     continue;
                 }
-
+                //一级
                 if (level == 1){
                     adsOfflineStoreVo.setOneLevel(offlineOrganize.getOrganizeName());
                 }
-
+                //二级
                 if (level == 2){
                     adsOfflineStoreVo.setTwoLevel(offlineOrganize.getOrganizeName());
                 }
-
+                //三级
                 if (level == 3){
                     adsOfflineStoreVo.setThreeLevel(offlineOrganize.getOrganizeName());
                 }
-
+                //四级
                 if (level == 4){
                     adsOfflineStoreVo.setFourLevel(offlineOrganize.getOrganizeName());
                 }
 
                 level++;
             }
+        }
+    }
+
+    private List<AdsOfflineStoreVo> getAdsOfflineStoreResult(ResultDto<PageInfo<AdsOfflineStoreVo>> pageInfoResultDto) {
+        List<AdsOfflineStoreVo> storeVoList = pageInfoResultDto.getData().getList();
+        for (AdsOfflineStoreVo adsOfflineStoreVo : storeVoList) {
+            //获取状态名称 1-启用 2-停用
+            if (adsOfflineStoreVo.getStatus() != null){
+                adsOfflineStoreVo.setStatusName(OrgStatusEnum.getStatusName(adsOfflineStoreVo.getStatus()));
+            }
+
+            //时间戳转换成string
+            if (adsOfflineStoreVo.getUpdateTime() != null){
+                adsOfflineStoreVo.setStrUpdateTime(DateUtils.conversionTime(adsOfflineStoreVo.getUpdateTime()));
+            }
+        }
+        return storeVoList;
+    }
+
+    //发送响应流方法
+    public void setResponseHeader(HttpServletResponse response, String fileName) {
+        try {
+            try {
+                fileName = new String(fileName.getBytes(),"ISO8859-1");
+            } catch (UnsupportedEncodingException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            response.setContentType("application/octet-stream;charset=ISO8859-1");
+            response.setHeader("Content-Disposition", "attachment;filename="+ fileName);
+            response.addHeader("Pargam", "no-cache");
+            response.addHeader("Cache-Control", "no-cache");
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 }

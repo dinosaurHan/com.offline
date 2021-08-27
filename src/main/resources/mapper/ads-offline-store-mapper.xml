@@ -20,6 +20,7 @@
 		<result property="delFlag" column="del_flag" />
 		<result property="insertTime" column="insert_time" />
 		<result property="updateTime" column="update_time" />
+		<result property="ancestorIds" column="ancestor_ids" />
 	</resultMap>
 
 	<!-- 新增列处理 -->
@@ -121,7 +122,8 @@
 			s.store_name,
 			s.org_id,
 			s.status,
-			s.update_time
+			s.update_time,
+			o.ancestor_ids
 		from ofl_store s
 		LEFT JOIN ofl_org o
 		ON(s.org_id = o.org_id)

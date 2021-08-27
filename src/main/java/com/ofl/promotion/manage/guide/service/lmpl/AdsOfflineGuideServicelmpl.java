@@ -5,6 +5,9 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.ofl.promotion.common.constant.Constant;
 import com.ofl.promotion.common.entity.ResultDto;
+import com.ofl.promotion.common.enums.OrgStatusEnum;
+import com.ofl.promotion.common.utils.DateUtils;
+import com.ofl.promotion.common.utils.ExcelUtils;
 import com.ofl.promotion.manage.guide.entity.AdsOfflineGuide;
 import com.ofl.promotion.manage.guide.entity.AdsOfflineGuideVo;
 import com.ofl.promotion.manage.guide.entity.filter.AdsOfflineGuideFilter;
@@ -15,10 +18,16 @@ import com.ofl.promotion.manage.organize.entity.filter.AdsOfflineOrganizeFilter;
 import com.ofl.promotion.manage.organize.service.IAdsOflOrganizeService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.List;
 
 /**
@@ -37,6 +46,11 @@ public class AdsOfflineGuideServicelmpl implements IAdsOfflineGuideService {
 
     private static final String COMMA = ",";
 
+    //excel标题
+    private static final String[] GUIDE_TITLE = {"一级","二级","三级","四级","门店名称","导购名称","电话号码","导购ID","上次操作时间","状态"};
+
+    private static final String GUIDE_FILE_NAME = "导购表";
+
     @Override
     public ResultDto<Integer> guideCount(AdsOfflineGuideFilter filter) {
         try{
@@ -53,13 +67,55 @@ public class AdsOfflineGuideServicelmpl implements IAdsOfflineGuideService {
     }
 
     @Override
-    public ResultDto<Void> export(AdsOfflineGuideFilter filter) {
+    public void export(AdsOfflineGuideFilter filter, HttpServletResponse response) {
+        try{
+            ResultDto<PageInfo<AdsOfflineGuideVo>> pageInfoResultDto = queryGuide(filter);
+            if (pageInfoResultDto.getRet() != Constant.Code.SUCC){
+                log.error("export query guide fail ret:{}|msg:{}",pageInfoResultDto.getRet(),pageInfoResultDto.getMsg());
+                return ;
+            }
 
-        return null;
+            //获取数据
+            List<AdsOfflineGuideVo> guideVoList = getAdsOfflineGuideResult(pageInfoResultDto);
+
+            //excel文件名
+             String fileName = GUIDE_FILE_NAME+System.currentTimeMillis()+".xls";
+
+            Object[] objects = guideVoList.toArray();
+            //创建HSSFWorkbook
+            HSSFWorkbook wb = ExcelUtils.export(GUIDE_FILE_NAME, GUIDE_TITLE, objects);
+
+            //响应到客户端
+            setResponseHeader(response, fileName);
+            OutputStream os = response.getOutputStream();
+            wb.write(os);
+            os.flush();
+            os.close();
+            return ;
+        }catch (Exception e){
+            log.error("guide export",e);
+            return;
+        }
+    }
+
+    private List<AdsOfflineGuideVo> getAdsOfflineGuideResult(ResultDto<PageInfo<AdsOfflineGuideVo>> pageInfoResultDto) {
+        List<AdsOfflineGuideVo> guideVoList = pageInfoResultDto.getData().getList();
+        for (AdsOfflineGuideVo adsOfflineGuideVo : guideVoList) {
+            //获取状态名称 1-启用 2-停用
+            if (adsOfflineGuideVo.getStatus() != null){
+                adsOfflineGuideVo.setStatusName(OrgStatusEnum.getStatusName(adsOfflineGuideVo.getStatus()));
+            }
+
+            //时间戳转换成string
+            if (adsOfflineGuideVo.getUpdateTime() != null){
+                adsOfflineGuideVo.setStrUpdateTime(DateUtils.conversionTime(adsOfflineGuideVo.getUpdateTime()));
+            }
+        }
+        return guideVoList;
     }
 
     @Override
-    public ResultDto<Object> queryGuide(AdsOfflineGuideFilter filter) {
+    public ResultDto<PageInfo<AdsOfflineGuideVo>> queryGuide(AdsOfflineGuideFilter filter) {
 
         try{
             if (filter.getOrganizeId() == null || filter.getPage() == 0 || filter.getPageSize() == 0){
@@ -85,16 +141,8 @@ public class AdsOfflineGuideServicelmpl implements IAdsOfflineGuideService {
             PageHelper.startPage(filter.getPage(),filter.getPageSize());
             List<AdsOfflineGuideVo> guideList = adsOfflineGuideMapper.findAll(queryFilter);
 
-            //获取上级信息
-            AdsOfflineOrganizeFilter organize = new AdsOfflineOrganizeFilter();
-            organize.setParentIds(organizeResult.getData().getAncestorIds());
-            ResultDto<List<AdsOfflineOrganize>> organizeResultDto = adsOflOrganizeService.queryHigherLevel(organize);
-            if (organizeResultDto.getRet() != Constant.Code.SUCC || CollectionUtils.isEmpty(organizeResultDto.getData())){
-                log.error("queryHigherLevel fail:{}", JSON.toJSONString(organize));
-                return new ResultDto<>(Constant.Code.FAIL,"查询上级机构失败");
-            }
-
-            addOrgHightLevel(guideList, organizeResultDto);
+            //添加上级信息
+            addOrgHightLevel(guideList);
 
             return new ResultDto<>(Constant.Code.SUCC,Constant.ResultMsg.SUCC,new PageInfo<>(guideList));
         }catch (Exception e){
@@ -104,8 +152,23 @@ public class AdsOfflineGuideServicelmpl implements IAdsOfflineGuideService {
 
     }
 
-    private void addOrgHightLevel(List<AdsOfflineGuideVo> guideList, ResultDto<List<AdsOfflineOrganize>> organizeResultDto) {
+    private void addOrgHightLevel(List<AdsOfflineGuideVo> guideList) {
         for (AdsOfflineGuideVo adsOfflineGuideVo : guideList) {
+            String ancestorIds = adsOfflineGuideVo.getAncestorIds();
+            if (StringUtils.isBlank(ancestorIds)){
+                continue;
+            }
+            //查询上级信息
+            AdsOfflineOrganizeFilter organize = new AdsOfflineOrganizeFilter();
+            //剔除超级管理员层级
+            String subAncestorIds = adsOfflineGuideVo.getAncestorIds().substring(4,ancestorIds.length());
+            organize.setParentIds(subAncestorIds + COMMA +adsOfflineGuideVo.getOrganizeId());
+            ResultDto<List<AdsOfflineOrganize>> organizeResultDto = adsOflOrganizeService.queryHigherLevel(organize);
+            if (organizeResultDto.getRet() != Constant.Code.SUCC || CollectionUtils.isEmpty(organizeResultDto.getData())){
+                log.error("queryHigherLevel fail:{}", JSON.toJSONString(organize));
+                return;
+            }
+
             int level = 1;
             for (AdsOfflineOrganize offlineOrganize : organizeResultDto.getData()) {
                 if (StringUtils.isBlank(offlineOrganize.getOrganizeName())){
@@ -130,6 +193,24 @@ public class AdsOfflineGuideServicelmpl implements IAdsOfflineGuideService {
 
                 level++;
             }
+        }
+    }
+
+    //发送响应流方法
+    public void setResponseHeader(HttpServletResponse response, String fileName) {
+        try {
+            try {
+                fileName = new String(fileName.getBytes(),"ISO8859-1");
+            } catch (UnsupportedEncodingException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            response.setContentType("application/octet-stream;charset=ISO8859-1");
+            response.setHeader("Content-Disposition", "attachment;filename="+ fileName);
+            response.addHeader("Pargam", "no-cache");
+            response.addHeader("Cache-Control", "no-cache");
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 }
