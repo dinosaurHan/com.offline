@@ -11,7 +11,16 @@
 		<result property="insertTime" column="insert_time" />
 		<result property="updateTime" column="update_time" />
 	</resultMap>
-	
+
+	<resultMap id="oflEmpMapper" type="com.ofl.promotion.manage.emp.entity.AdsOfflineEmp">
+		<result property="empId" column="emp_id" />
+		<result property="empName" column="emp_name" />
+		<result property="phone" column="phone" />
+		<result property="delFlag" column="del_flag" />
+		<result property="insertTime" column="insert_time" />
+		<result property="updateTime" column="update_time" />
+	</resultMap>
+
 	<!-- 查询字段公共sql -->
 	<sql id="selectAllColumns">
 		emp_id,emp_name,phone,del_flag, insert_time,update_time
@@ -108,5 +117,20 @@
 		where emp_id = #{emp_id}
 	</update>
 	
-
+	<select id="findEmpMapByOrgId" parameterType="com.ofl.promotion.manage.emp.entity.filter.AdsOfflineEmpMapFilter"
+			resultMap="oflEmpMapper">
+		SELECT
+			e.emp_id,
+			e.emp_name,
+			e.phone
+		FROM
+			ofl_org_emp_map em
+			LEFT JOIN ofl_emp e ON ( em.emp_id = e.emp_id )
+			LEFT JOIN ofl_org o ON ( em.org_id = o.org_id )
+		<where>
+			<if test="organizeId != null">
+				o.org_id = #{organizeId}
+			</if>
+		</where>
+	</select>
 </mapper>

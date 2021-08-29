@@ -22,4 +22,6 @@ public class AdsOfflineEmpMapFilter extends AdsOfflineEmpMap implements Serializ
     private String phone;
 
     private String ancestorIds;
+
+    private Long organizeId;
 }

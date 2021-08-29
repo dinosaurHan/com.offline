@@ -2,6 +2,7 @@ package com.ofl.promotion.manage.emp.mapper;
 
 import com.ofl.promotion.manage.emp.entity.AdsOfflineEmp;
 import com.ofl.promotion.manage.emp.entity.AdsOfflineEmpMap;
+import com.ofl.promotion.manage.emp.entity.filter.AdsOfflineEmpFilter;
 import com.ofl.promotion.manage.emp.entity.filter.AdsOfflineEmpMapFilter;
 import org.springframework.stereotype.Repository;
 
@@ -14,4 +15,6 @@ import java.util.List;
 public interface IAdsOfflineEmpMapMapper {
 
     List<AdsOfflineEmpMap> queryLead(AdsOfflineEmpMapFilter empMap);
+
+    List<AdsOfflineEmp> findEmpMapByOrgId(AdsOfflineEmpFilter empFilter);
 }

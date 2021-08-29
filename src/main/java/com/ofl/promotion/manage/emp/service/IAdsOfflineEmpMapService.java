@@ -2,6 +2,7 @@ package com.ofl.promotion.manage.emp.service;
 
 import com.ofl.promotion.common.entity.ResultDto;
 import com.ofl.promotion.manage.emp.entity.AdsOfflineEmp;
+import com.ofl.promotion.manage.emp.entity.filter.AdsOfflineEmpFilter;
 import com.ofl.promotion.manage.emp.entity.filter.AdsOfflineEmpMapFilter;
 import com.ofl.promotion.manage.emp.entity.filter.AdsOfflineEmpMapFilter;
 import com.ofl.promotion.manage.organize.entity.AdsOfflineOrganize;
@@ -18,4 +19,6 @@ public interface IAdsOfflineEmpMapService {
     ResultDto<Void> queryLead(AdsOfflineEmpMapFilter filter);
 
     int addEmpMap(AdsOfflineEmpMapFilter empMapFilter);
+
+    ResultDto<List<AdsOfflineEmp>> findOrgEmp(AdsOfflineEmpFilter empFilter);
 }

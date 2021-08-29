@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.ofl.promotion.common.constant.Constant;
 import com.ofl.promotion.common.entity.ResultDto;
+import com.ofl.promotion.manage.emp.entity.AdsOfflineEmp;
 import com.ofl.promotion.manage.emp.entity.AdsOfflineEmpMap;
 import com.ofl.promotion.manage.emp.entity.filter.AdsOfflineEmpFilter;
 import com.ofl.promotion.manage.emp.entity.filter.AdsOfflineEmpMapFilter;
@@ -77,6 +78,18 @@ public class AdsOfflineEmpMapServicelmpl implements IAdsOfflineEmpMapService {
     public int addEmpMap(AdsOfflineEmpMapFilter empMapFilter) {
 
         return 0;
+    }
+
+    @Override
+    public ResultDto<List<AdsOfflineEmp>> findOrgEmp(AdsOfflineEmpFilter empFilter) {
+        try{
+
+            return new ResultDto<>(Constant.Code.SUCC,Constant.ResultMsg.SUCC,adsOfflineEmpMapMapper.findEmpMapByOrgId(empFilter));
+        }catch (Exception e){
+            log.error("findOrgEmp fail",e);
+            return new ResultDto<>(Constant.Code.FAIL, Constant.ResultMsg.SYSTEM_ERROR);
+        }
+
     }
 
 }

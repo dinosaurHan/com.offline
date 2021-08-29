@@ -333,7 +333,8 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
             }
 
             AdsOfflineEmpFilter empFilter = new AdsOfflineEmpFilter();
-            ResultDto<List<AdsOfflineEmp>> offlineEmpResult = adsOfflineEmpService.findAll(empFilter);
+            empFilter.setOrganizeId(empFilter.getOrganizeId());
+            ResultDto<List<AdsOfflineEmp>> offlineEmpResult = adsOfflineEmpMapService.findOrgEmp(empFilter);
             if (offlineEmpResult.getRet() != Constant.Code.SUCC){
                 log.error("emp query fail ret:{}|msg:{}",offlineEmpResult.getRet(),offlineEmpResult.getMsg());
                 return new ResultDto<>(Constant.Code.FAIL,"查询失败");

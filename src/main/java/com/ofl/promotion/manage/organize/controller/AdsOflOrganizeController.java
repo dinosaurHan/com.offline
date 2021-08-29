@@ -59,7 +59,7 @@ public class AdsOflOrganizeController {
     }
 
     /**
-     * 组织机构信息查询(含负责人信息)
+     * 查询机构树信息
      */
     @RequestMapping("/tree/query")
     public ResultDto<List<AdsOfflineOrganize>> queryOrgTree(@RequestBody AdsOfflineOrganizeFilter filter){
