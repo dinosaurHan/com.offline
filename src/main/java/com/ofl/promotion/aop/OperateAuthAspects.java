@@ -20,24 +20,17 @@ import org.springframework.core.annotation.Order;
 import java.util.Date;
 
 /**
-* 校验Token
+* 操作权限校验
  **/
 @Aspect
 @Configuration
 @Order(value= Ordered.HIGHEST_PRECEDENCE + 20)
 @Slf4j
-public class LoginAuthAspects {
+public class OperateAuthAspects {
 
-//    @Resource
-//    private StringRedisTemplate stringRedisTemplate;
-//
-//    @Resource
-//    private RedisTemplate redisTemplate;
-
-    @Around("@annotation(loginAuthentication)")
-    public Object verifyToken(ProceedingJoinPoint pjp, LoginAuthentication loginAuthentication) throws Throwable{
+    @Around("@annotation(operateAuth)")
+    public Object operateAuth(ProceedingJoinPoint pjp, OperateAuth operateAuth) throws Throwable{
         //获取登录类型
-        int loginType = loginAuthentication.loginType();
 
         AdsOfflineBaseParam param = new AdsOfflineBaseParam();
         try {
@@ -49,10 +42,8 @@ public class LoginAuthAspects {
                 }
             }
 
-            //获取登录人的手机号
-            if (getLoginPhoneByToken(loginType, param)){
-                return new ResultDto<>(Constant.Code.FAIL, Constant.ResultMsg.TOKEN_INVALID);
-            }
+            //判断是否是机构负责人
+
 
 
         } catch (SignatureException | MalformedJwtException e){
@@ -70,30 +61,10 @@ public class LoginAuthAspects {
             }
             //获取token中用户手机号
             param.setBasePhone(claims.getSubject());
-            param.setLoginType(loginType);
         }
 
         //4.process on
         return pjp.proceed();
     }
 
-    private boolean getLoginPhoneByToken(int loginType, AdsOfflineBaseParam param) throws Exception {
-        //获取token
-        String token = param.getToken();
-        if (StringUtils.isBlank(token)){
-            log.error("token is blank");
-            throw new RuntimeException("校验失败");
-        }
-
-        Claims claims = JwtUtils.parseJWT(token,loginType);
-        Date expiration = claims.getExpiration();
-        //当前时间大于设置的过期时间，失效
-        if (new Date().getTime() > expiration.getTime()){
-            return true;
-        }
-        //获取token中用户手机号
-        param.setBasePhone(claims.getSubject());
-        param.setLoginType(loginType);
-        return false;
-    }
 }
