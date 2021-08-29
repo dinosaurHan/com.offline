@@ -82,13 +82,24 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
                 return new ResultDto<>(Constant.Code.FAIL, Constant.ResultMsg.LOWER_LEVEL_ORG_TYPE_CONFLICT);
             }
 
-            AdsOfflineEmpMapFilter empMapFilter = new AdsOfflineEmpMapFilter();
-            empMapFilter.setLeadList(filter.getLeadList());
-            empMapFilter.setAncestorIds(offlineOrganize.getAncestorIds());
-            //判断是否已经成为负责人（同层级不能重复添加机构负责人）
-            ResultDto<Void> leadResult=  adsOfflineEmpMapService.queryLead(empMapFilter);
-            if (leadResult.getRet() != Constant.Code.SUCC){
-                return new ResultDto<>(leadResult.getRet(),leadResult.getMsg());
+            //是否已经成为机构负责人
+            if (!CollectionUtils.isEmpty(filter.getLeadList())){
+                AdsOfflineEmpMapFilter empMapFilter = new AdsOfflineEmpMapFilter();
+                empMapFilter.setLeadList(filter.getLeadList());
+                empMapFilter.setAncestorIds(offlineOrganize.getAncestorIds());
+                //判断是否已经成为负责人（同层级不能重复添加机构负责人）
+                ResultDto<Void> leadResult=  adsOfflineEmpMapService.queryLead(empMapFilter);
+                if (leadResult.getRet() != Constant.Code.SUCC){
+                    return new ResultDto<>(leadResult.getRet(),leadResult.getMsg());
+                }
+            }
+
+            //判断该机构名称是否存在
+            AdsOfflineOrganizeFilter organize = new AdsOfflineOrganizeFilter();
+            organize.setOrganizeName(filter.getLowerOrgName());
+            AdsOfflineOrganize adsOfflineOrganize = adsOfflineOrganizeMapper.findOne(organize);
+            if (adsOfflineOrganize != null){
+                return new ResultDto<>(Constant.Code.FAIL,"该机构名称已经被创建");
             }
 
             //添加组织架构

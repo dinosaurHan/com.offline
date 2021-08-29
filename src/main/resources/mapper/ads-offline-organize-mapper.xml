@@ -115,8 +115,8 @@
 
     <sql id="sql_add_properties">
         <trim suffixOverrides=",">
-            <if test="organizeId != null">#{orgId},</if>
-            <if test="organizeName != null">#{orgName},</if>
+            <if test="organizeId != null">#{organizeId},</if>
+            <if test="organizeName != null">#{organizeName},</if>
             <if test="parentId != null">#{parentId},</if>
             <if test="organizeLevel != null">#{organizeLevel},</if>
             <if test="status != null">#{status},</if>
