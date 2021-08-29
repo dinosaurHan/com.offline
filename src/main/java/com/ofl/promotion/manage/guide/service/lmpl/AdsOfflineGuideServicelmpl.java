@@ -201,7 +201,18 @@ public class AdsOfflineGuideServicelmpl implements IAdsOfflineGuideService {
     @Override
     public ResultDto<Void> delGuide(AdsOfflineGuideFilter filter) {
         try{
+            if (CollectionUtils.isEmpty(filter.getGuideIdList())){
+                log.error("guideIdList is empty");
+                return new ResultDto<>();
+            }
 
+            for (Long guideId : filter.getGuideIdList()) {
+                filter.setGuideId(guideId);
+                filter.setDelFlag(Constant.DelFlag.INVALID);
+                if (adsOfflineGuideMapper.update(filter) < 0){
+                    log.error("batchUpdGuideStatus fail param:{}",JSON.toJSONString(filter));
+                }
+            }
         }catch (Exception e){
             log.error("delGuide fail",e);
             return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SYSTEM_ERROR);

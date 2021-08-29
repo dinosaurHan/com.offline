@@ -551,12 +551,12 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
     @Override
     public ResultDto<Void> batchUpdOrgStatus(AdsOfflineOrganizeFilter filter) {
         try{
-            if (CollectionUtils.isEmpty(filter.getOrganizeList()) || filter.getStatus() == null){
+            if (CollectionUtils.isEmpty(filter.getOrganizeIdList()) || filter.getStatus() == null){
                 log.error("organizeIdList || status is empty:{}",JSON.toJSONString(filter));
-                return new ResultDto<>(Constant.Code.FAIL,"");
+                return new ResultDto<>(Constant.Code.FAIL,"organizeIdList || status is empty");
             }
 
-            for (Long organizeId: filter.getOrganizeList()) {
+            for (Long organizeId: filter.getOrganizeIdList()) {
                 AdsOfflineOrganizeFilter organizeFilter = new AdsOfflineOrganizeFilter();
                 organizeFilter.setOrganizeId(organizeId);
                 organizeFilter.setStatus(filter.getStatus());
@@ -575,12 +575,12 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
     @Override
     public ResultDto<Void> delOrg(AdsOfflineOrganizeFilter filter) {
         try{
-            if (CollectionUtils.isEmpty(filter.getOrganizeList())){
+            if (CollectionUtils.isEmpty(filter.getOrganizeIdList())){
                 log.error("organizeIdList || status is empty:{}",JSON.toJSONString(filter));
                 return new ResultDto<>(Constant.Code.FAIL,"");
             }
 
-            for (Long organizeId: filter.getOrganizeList()) {
+            for (Long organizeId: filter.getOrganizeIdList()) {
                 AdsOfflineOrganizeFilter organizeFilter = new AdsOfflineOrganizeFilter();
                 organizeFilter.setOrganizeId(organizeId);
                 organizeFilter.setDelFlag(Constant.DelFlag.INVALID);
