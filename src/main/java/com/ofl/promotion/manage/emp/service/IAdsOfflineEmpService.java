@@ -20,4 +20,8 @@ public interface IAdsOfflineEmpService {
     ResultDto<Void> updateEmp(AdsOfflineEmpFilter filter);
 
     ResultDto<List<AdsOfflineEmp>> findAll(AdsOfflineEmpFilter filter);
+
+    ResultDto<Object> login(AdsOfflineEmpFilter filter);
+
+    ResultDto<Object> getIdentifyingCode(AdsOfflineEmpFilter filter);
 }

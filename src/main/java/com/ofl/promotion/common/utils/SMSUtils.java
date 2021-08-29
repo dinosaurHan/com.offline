@@ -1,13 +1,13 @@
 package com.ofl.promotion.common.utils;
 
+import com.alibaba.fastjson.JSON;
 import com.github.qcloudsms.SmsSingleSender;
 import com.github.qcloudsms.SmsSingleSenderResult;
 import com.github.qcloudsms.httpclient.HTTPException;
+import com.ofl.promotion.common.constant.Constant;
+import com.ofl.promotion.common.entity.ResultDto;
 import org.json.JSONException;
-import org.json.JSONObject;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 /**
@@ -26,9 +26,10 @@ public class SMSUtils {
     private final static String SMSSIGN = "APP推广平台";
 
     //生成二维码
-    public static String sendSMS(HttpServletRequest request, String phoneNumber) {
+    public static ResultDto<String> sendSMS(String phoneNumber) {
+        ResultDto<String> smsResult = new ResultDto<>();
         //随机生成六位验证码的工具类
-        String code = String.valueOf(Math.random()*1000000);;
+        String code = String.valueOf((int)(Math.random()*1000000));
         try {
             //参数，一定要对应短信模板中的参数顺序和个数，
             String[] params = {code};
@@ -37,7 +38,7 @@ public class SMSUtils {
             //发送
             SmsSingleSenderResult result = ssender.sendWithParam("86", phoneNumber,TEMPLATEID, params, SMSSIGN, "", "");
             if(result.result != 0){
-                return null;
+                return new ResultDto<>(result.result,result.errMsg);
             }
 
         } catch (HTTPException e) {
@@ -53,6 +54,7 @@ public class SMSUtils {
             // 网络IO错误
             e.printStackTrace();
         }
-        return code;
+        return new ResultDto<>(Constant.Code.SUCC,Constant.ResultMsg.SUCC,code);
     }
+
 }
