@@ -6,7 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication(scanBasePackages = "com.ofl")
 @MapperScan({"com.ofl.promotion.manage.organize.mapper","com.ofl.promotion.manage.emp.mapper",
-        "com.ofl.promotion.manage.store.mapper","com.ofl.promotion.manage.guide.mapper"})
+        "com.ofl.promotion.manage.store.mapper","com.ofl.promotion.manage.guide.mapper",
+        "com.ofl.promotion.manage.data.mapper"})
 public class Application {
 
     public static void main(String[] args) {

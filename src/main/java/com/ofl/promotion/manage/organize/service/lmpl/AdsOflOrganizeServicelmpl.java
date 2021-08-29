@@ -523,11 +523,23 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
 
     @Override
     public ResultDto<Void> batchUpdOrgStatus(AdsOfflineOrganizeFilter filter) {
+        try{
+
+        }catch (Exception e){
+            log.error("batchUpdOrgStatus fail",e);
+            return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SYSTEM_ERROR);
+        }
         return null;
     }
 
     @Override
     public ResultDto<Void> delOrg(AdsOfflineOrganizeFilter filter) {
+        try{
+
+        }catch (Exception e){
+            log.error("delOrg fail",e);
+            return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SYSTEM_ERROR);
+        }
         return null;
     }
 }
