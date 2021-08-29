@@ -4,6 +4,7 @@ import com.ofl.promotion.manage.guide.entity.AdsOfflineGuide;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @Author Mr.quan
@@ -19,4 +20,6 @@ public class AdsOfflineGuideFilter extends AdsOfflineGuide implements Serializab
     private Long organizeId;
 
     private String ancestorIds;
+
+    private List<Long> guideIdList;
 }

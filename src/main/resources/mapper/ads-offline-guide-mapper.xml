@@ -134,4 +134,21 @@
 			</if>
 		</where>
 	</select>
+
+	<update id="update" parameterType="com.ofl.promotion.manage.guide.entity.filter.AdsOfflineGuideFilter">
+		update
+		<set>
+			<if test="status != null">
+				status = #{status},
+			</if>
+			<if test="delFlag != null">
+				del_flag = #{delFlag},
+			</if>
+		</set>
+		<where>
+			<if test="guideId != null">
+				guide_id = #{guideId}
+			</if>
+		</where>
+	</update>
 </mapper>
