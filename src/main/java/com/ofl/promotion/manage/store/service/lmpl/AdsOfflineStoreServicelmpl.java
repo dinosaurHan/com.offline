@@ -12,6 +12,7 @@ import com.ofl.promotion.manage.guide.entity.AdsOfflineGuideVo;
 import com.ofl.promotion.manage.organize.entity.AdsOfflineOrganize;
 import com.ofl.promotion.manage.organize.entity.filter.AdsOfflineOrganizeFilter;
 import com.ofl.promotion.manage.organize.service.IAdsOflOrganizeService;
+import com.ofl.promotion.manage.store.entity.AdsOfflineStore;
 import com.ofl.promotion.manage.store.entity.AdsOfflineStoreVo;
 import com.ofl.promotion.manage.store.entity.filter.AdsOfflineStoreFilter;
 import com.ofl.promotion.manage.store.mapper.IAdsOfflineStoreMapper;
@@ -50,7 +51,7 @@ public class AdsOfflineStoreServicelmpl implements IAdsOfflineStoreService {
     private static final String STORE_FILE_NAME = "门店表";
 
     @Override
-    public ResultDto<Long> addStore(AdsOfflineStoreFilter filter) {
+    public ResultDto<Void> addStore(AdsOfflineStoreFilter filter) {
         try{
             if (StringUtils.isBlank(filter.getStoreName()) || filter.getOrganizeId() == null){
                 log.error("addStore param invalid:{}", JSON.toJSONString(filter));
@@ -63,7 +64,7 @@ public class AdsOfflineStoreServicelmpl implements IAdsOfflineStoreService {
                 return new ResultDto<>();
             }
 
-            return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SUCC,storeId);
+            return new ResultDto<>(Constant.Code.SUCC,Constant.ResultMsg.SUCC);
         }catch (Exception e){
             log.error("addStore fail",e);
             return new ResultDto<>(Constant.Code.FAIL, Constant.ResultMsg.SYSTEM_ERROR);
@@ -193,6 +194,16 @@ public class AdsOfflineStoreServicelmpl implements IAdsOfflineStoreService {
             return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SYSTEM_ERROR);
         }
         return null;
+    }
+
+    @Override
+    public ResultDto<AdsOfflineStore> findOne(AdsOfflineStoreFilter storeFilter) {
+        try{
+            return new ResultDto<>(Constant.Code.SUCC,Constant.ResultMsg.SUCC,adsOfflineStoreMapper.findOne(storeFilter));
+        }catch (Exception e){
+            log.error("findOne fail",e);
+            return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SYSTEM_ERROR);
+        }
     }
 
     private void addOrgHightLevel(List<AdsOfflineStoreVo>  storeVoList) {

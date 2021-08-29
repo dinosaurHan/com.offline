@@ -45,7 +45,7 @@ public class AdsOfflineEmpServicelmpl implements IAdsOfflineEmpService {
     @Override
     public ResultDto<Long> addEmp(AdsOfflineEmpFilter filter) {
         try{
-            if (StringUtils.isBlank(filter.getPhone()) || StringUtils.isBlank(filter.getName())){
+            if (StringUtils.isBlank(filter.getPhone()) || StringUtils.isBlank(filter.getEmpName())){
                 log.error("findOne param invalid:{}", JSON.toJSONString(filter));
                 return new ResultDto<>(Constant.Code.FAIL,"phone || name is empty");
             }

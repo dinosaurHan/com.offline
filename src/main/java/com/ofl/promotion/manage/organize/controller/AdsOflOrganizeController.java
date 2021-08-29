@@ -78,7 +78,6 @@ public class AdsOflOrganizeController {
      * 下级组织机构信息查询（分页）
      */
     @RequestMapping("/count")
-    @LoginAuthentication
     public ResultDto<Object> countOrg(@RequestBody AdsOfflineOrganizeFilter filter){
         return adsOflOrganizeService.countOrg(filter);
     }

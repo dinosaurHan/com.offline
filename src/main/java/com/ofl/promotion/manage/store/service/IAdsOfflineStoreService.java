@@ -3,6 +3,7 @@ package com.ofl.promotion.manage.store.service;
 import com.github.pagehelper.PageInfo;
 import com.ofl.promotion.common.entity.ResultDto;
 import com.ofl.promotion.manage.guide.entity.filter.AdsOfflineGuideFilter;
+import com.ofl.promotion.manage.store.entity.AdsOfflineStore;
 import com.ofl.promotion.manage.store.entity.AdsOfflineStoreVo;
 import com.ofl.promotion.manage.store.entity.filter.AdsOfflineStoreFilter;
 
@@ -18,7 +19,7 @@ public interface IAdsOfflineStoreService {
     /**
      * 添加门店
      */
-    ResultDto<Long> addStore(AdsOfflineStoreFilter filter);
+    ResultDto<Void> addStore(AdsOfflineStoreFilter filter);
 
     ResultDto<Integer> storeCount(AdsOfflineStoreFilter filter);
 
@@ -29,4 +30,6 @@ public interface IAdsOfflineStoreService {
     ResultDto<Void> batchUpdStoreStatus(AdsOfflineStoreFilter filter);
 
     ResultDto<Void> delStore(AdsOfflineStoreFilter filter);
+
+    ResultDto<AdsOfflineStore> findOne(AdsOfflineStoreFilter storeFilter);
 }

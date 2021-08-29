@@ -19,6 +19,7 @@ import com.ofl.promotion.manage.organize.entity.AdsOfflineOrganizeCount;
 import com.ofl.promotion.manage.organize.entity.dto.AdsOfflineOrganizeDto;
 import com.ofl.promotion.manage.organize.entity.AdsOfflineOrganizeExcel;
 import com.ofl.promotion.manage.organize.entity.filter.AdsOfflineOrganizeFilter;
+import com.ofl.promotion.manage.store.entity.AdsOfflineStore;
 import com.ofl.promotion.manage.store.entity.filter.AdsOfflineStoreFilter;
 import com.ofl.promotion.manage.organize.mapper.IAdsOfflineOrganizeMapper;
 import com.ofl.promotion.manage.emp.service.IAdsOfflineEmpService;
@@ -105,8 +106,9 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
             }
 
             //添加组织架构
+            filter.setParentId(filter.getOrganizeId());
             filter.setOrganizeLevel(offlineOrganize.getOrganizeLevel() + 1);
-            filter.setAncestorIds(offlineOrganize.getAncestorIds() + filter.getOrganizeId());
+            filter.setAncestorIds(offlineOrganize.getAncestorIds() + COMMA + offlineOrganize.getOrganizeId());
             ResultDto<AdsOfflineOrganize> addResult = addLowerLevelOrgOrStore(filter);
             if (addResult.getRet() != Constant.Code.SUCC) return addResult;
 
@@ -120,7 +122,6 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
     private ResultDto<AdsOfflineOrganize> addLowerLevelOrgOrStore(AdsOfflineOrganizeFilter filter) throws RuntimeException {
 
         //添加机构
-        Long organizeId = null;
         if (filter.getLowerOrgType() == Constant.LowerLevelType.ORGANIZE){
 
             //添加下级机构
@@ -131,23 +132,32 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
                 return new ResultDto<>(Constant.Code.FAIL, "addLowerLevel addOflOrg fail");
             }
 
-            organizeId = filter.getOrganizeId();
             //添加下级机构负责人,门店无需添加负责人
             if (!CollectionUtils.isEmpty(filter.getLeadList())){
-                addLowerLevelLead(filter.getLeadList(),organizeId);
+                addLowerLevelLead(filter.getLeadList(),filter.getOrganizeId());
             }
 
         }else if (filter.getLowerOrgType() == Constant.LowerLevelType.STORE){
-            //添加下级门店
+            //判断该名称是否已经创建
             AdsOfflineStoreFilter storeFilter = new AdsOfflineStoreFilter();
             storeFilter.setStoreName(filter.getLowerOrgName());
+            ResultDto<AdsOfflineStore> storeResultDto = adsOfflineStoreService.findOne(storeFilter);
+            if (storeResultDto.getRet() != Constant.Code.SUCC){
+                log.error("addLowerLevelOrgOrStore findOne ret:{}|msg:{}",storeResultDto.getRet(),storeResultDto.getMsg());
+                return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.FAIL);
+            }
+
+            if (storeResultDto.getData() != null){
+                return new ResultDto<>(Constant.Code.FAIL,"该名称的门店已创建");
+            }
+
+            //添加机构下级门店
             storeFilter.setOrganizeId(filter.getParentId());
-            ResultDto<Long> resultDto = adsOfflineStoreService.addStore(storeFilter);
+            ResultDto<Void> resultDto = adsOfflineStoreService.addStore(storeFilter);
             if (resultDto.getRet() != Constant.Code.SUCC){
                 log.error("addLowerLevelOrgOrStore fail ret:{}|msg:{}",resultDto.getRet(),resultDto.getMsg());
                 return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.FAIL);
             }
-            organizeId = resultDto.getData();
 
         }else {
             //参数错误
@@ -158,20 +168,27 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
         AdsOfflineOrganize adsOfflineOrganize = new AdsOfflineOrganize();
         adsOfflineOrganize.setParentId(filter.getParentId());
         adsOfflineOrganize.setOrganizeName(filter.getLowerOrgName());
-        adsOfflineOrganize.setOrganizeId(filter.getOrganizeId());
+        //创建门店时，组织id和父级id值一样
+        if (filter.getOrganizeId() > filter.getParentId()){
+            adsOfflineOrganize.setOrganizeId(filter.getOrganizeId());
+        }
         return new ResultDto<>(Constant.Code.SUCC,null,adsOfflineOrganize);
     }
 
-    private boolean checkLowerLevelOrgConflict(AdsOfflineOrganizeFilter filter) {
-        filter.setParentId(filter.getOrganizeId());
-        filter.setOrganizeId(null);
-        List<AdsOfflineOrganize> offlineOrganizeList = adsOfflineOrganizeMapper.findAll(filter);
-        //为空则说明该组织下级是门店
-        if (CollectionUtils.isEmpty(offlineOrganizeList) && filter.getLowerOrgType() == Constant.LowerLevelType.ORGANIZE){
-            return true;
+    private boolean checkLowerLevelOrgConflict(AdsOfflineOrganizeFilter filter) throws Exception{
+        if (filter.getOrganizeId() == 0){
+            return false;
+        }
 
-        }else if (!CollectionUtils.isEmpty(offlineOrganizeList) && filter.getLowerOrgType() != Constant.LowerLevelType.ORGANIZE){
-            //不为空则下级是机构
+        AdsOfflineStoreFilter storeFilter = new AdsOfflineStoreFilter();
+        storeFilter.setOrganizeId(filter.getOrganizeId());
+        ResultDto<AdsOfflineStore> storeResultDto = adsOfflineStoreService.findOne(storeFilter);
+        if (storeResultDto.getRet() != Constant.Code.SUCC){
+            throw new RuntimeException();
+        }
+
+        //不为空则说明该组织下级是门店
+        if (storeResultDto.getData() != null && filter.getLowerOrgType() == Constant.LowerLevelType.ORGANIZE){
             return true;
         }
         return false;

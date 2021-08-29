@@ -8,6 +8,7 @@
         <result property="organizeName" column="org_name" />
         <result property="organizeLevel" column="org_level" />
         <result property="ancestorIds" column="ancestor_ids" />
+        <result property="parentId" column="parent_id" />
         <result property="status" column="status" />
         <result property="delFlag" column="del_flag" />
         <result property="insertTime" column="insert_time" />
@@ -37,7 +38,7 @@
 
     <!-- 查询字段公共sql -->
     <sql id="selectAllColumns">
-        org_id,org_name,status,del_flag,insert_time,update_time,org_level,ancestor_ids
+        org_id,org_name,status,del_flag,insert_time,update_time,org_level,ancestor_ids,parent_id
     </sql>
 
     <sql id="time_sort">
@@ -102,9 +103,9 @@
     <!-- 新增列处理 -->
     <sql id="sql_add_columns">
         <trim suffixOverrides=",">
-            <if test="organizeId != null">org_id,</if>
             <if test="organizeName != null">org_name,</if>
             <if test="parentId != null">parent_id,</if>
+            <if test="ancestorIds != null">ancestor_ids,</if>
             <if test="organizeLevel != null">org_level,</if>
             <if test="status != null">status,</if>
             <if test="delFlag != null">del_flag,</if>
@@ -115,9 +116,9 @@
 
     <sql id="sql_add_properties">
         <trim suffixOverrides=",">
-            <if test="organizeId != null">#{organizeId},</if>
             <if test="organizeName != null">#{organizeName},</if>
             <if test="parentId != null">#{parentId},</if>
+            <if test="ancestorIds != null">#{ancestorIds},</if>
             <if test="organizeLevel != null">#{organizeLevel},</if>
             <if test="status != null">#{status},</if>
             <if test="delFlag != null">#{delFlag},</if>

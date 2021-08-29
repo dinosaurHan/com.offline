@@ -1,5 +1,6 @@
 package com.ofl.promotion.manage.store.mapper;
 
+import com.ofl.promotion.manage.store.entity.AdsOfflineStore;
 import com.ofl.promotion.manage.store.entity.AdsOfflineStoreVo;
 import com.ofl.promotion.manage.store.entity.filter.AdsOfflineStoreFilter;
 
@@ -18,4 +19,6 @@ public interface IAdsOfflineStoreMapper {
     List<AdsOfflineStoreVo> findAllByOrgIds(AdsOfflineStoreFilter store);
 
     int update(AdsOfflineStoreFilter filter);
+
+    AdsOfflineStore findOne(AdsOfflineStoreFilter storeFilter);
 }

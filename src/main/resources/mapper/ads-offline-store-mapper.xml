@@ -47,7 +47,8 @@
 	</sql>
 
 	<!-- 新增 -->
-	<insert id="add" parameterType="com.ofl.promotion.manage.store.entity.filter.AdsOfflineStoreFilter">
+	<insert id="add" parameterType="com.ofl.promotion.manage.store.entity.filter.AdsOfflineStoreFilter"
+			keyProperty="organizeId" useGeneratedKeys="true">
 		insert into ofl_store(
 		<include refid="sql_add_columns"/>
 		)values(
@@ -83,15 +84,22 @@
 	</update>
 
 	<!-- 查询单个实体 -->
-	<select id="queryOflStoreById" resultMap="BaseMapper"
+	<select id="findOne" resultMap="BaseMapper"
 			parameterType="com.ofl.promotion.manage.store.entity.filter.AdsOfflineStoreFilter">
 		select
 		<include refid="selectAllColumns"/>
 		FROM ofl_store
 		<where>
 			<if test = "storeId != null ">
-				store_id = #{storeId},
+				and store_id = #{storeId}
 			</if>
+			<if test = "storeName != null ">
+				and store_name = #{storeName}
+			</if>
+			<if test = "organizeId != null ">
+				and org_id = #{organizeId}
+			</if>
+			limit 1
 		</where>
 	</select>
 
