@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
 import com.ofl.promotion.common.constant.Constant;
 import com.ofl.promotion.common.entity.ResultDto;
 import com.ofl.promotion.common.utils.ExcelUtils;
@@ -411,9 +412,19 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
         try{
             if (checkOrgId(filter)) return new ResultDto<>(Constant.Code.FAIL, "organizeId is Empty");
 
-            filter.setParentId(filter.getOrganizeId());
+            //判断该机构是否存在
+            AdsOfflineOrganize offlineOrganize = adsOfflineOrganizeMapper.findOne(filter);
+            if (offlineOrganize == null || StringUtils.isBlank(offlineOrganize.getAncestorIds())) {
+                return new ResultDto<>(Constant.Code.FAIL,"没有该机构");
+            }
+
+            filter.setAncestorIds(offlineOrganize.getAncestorIds() + COMMA + offlineOrganize.getOrganizeId());
             filter.setOrganizeId(null);
-            return new ResultDto<>(0,"操作成功",adsOfflineOrganizeMapper.findAll(filter));
+
+            List<AdsOfflineOrganize> allOrganize = Lists.newArrayList();
+            allOrganize.add(offlineOrganize);
+            allOrganize.addAll(adsOfflineOrganizeMapper.findAll(filter));
+            return new ResultDto<>(0,"操作成功",allOrganize);
         }catch (Exception e){
             log.error("queryOrgTree fail",e);
             return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SYSTEM_ERROR);

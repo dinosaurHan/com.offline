@@ -1,5 +1,6 @@
 package com.ofl.promotion.manage.emp.entity;
 
+import com.ofl.promotion.common.entity.AdsOfflineBaseParam;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -9,7 +10,7 @@ import java.io.Serializable;
  * @Date 2021/8/21 11:58
  */
 @Data
-public class AdsOfflineEmp implements Serializable {
+public class AdsOfflineEmp extends AdsOfflineBaseParam implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

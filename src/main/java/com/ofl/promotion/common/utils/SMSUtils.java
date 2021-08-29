@@ -23,11 +23,10 @@ public class SMSUtils {
     // 短信模板ID，需要在短信应用中申请
     private final static int TEMPLATEID = 1084039;
     // 签名，使用的是签名内容，而不是签名ID
-    private final static String SMSSIGN = "APP推广平台";
+    private final static String SMSSIGN = "尚缔科技";
 
     //生成二维码
     public static ResultDto<String> sendSMS(String phoneNumber) {
-        ResultDto<String> smsResult = new ResultDto<>();
         //随机生成六位验证码的工具类
         String code = String.valueOf((int)(Math.random()*1000000));
         try {

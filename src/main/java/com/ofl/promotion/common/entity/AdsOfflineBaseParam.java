@@ -12,4 +12,6 @@ public class AdsOfflineBaseParam {
     private String token;
 
     private String basePhone;
+
+    private int loginType;
 }

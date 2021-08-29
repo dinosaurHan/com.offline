@@ -6,7 +6,7 @@
 	<resultMap id="oflOrgEmpMapMapper" type="com.ofl.promotion.manage.emp.entity.AdsOfflineEmpMap">
 		<result property="mapId" column="map_id" />
 		<result property="empId" column="emp_id" />
-		<result property="orgId" column="org_id" />
+		<result property="organizeId" column="org_id" />
 		<result property="delFlag" column="del_flag" />
 		<result property="insertTime" column="insert_time" />
 		<result property="updateTime" column="update_time" />

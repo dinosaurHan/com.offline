@@ -68,7 +68,7 @@ public class AdsOfflineAppletServicelmpl implements IAdsOfflineAppletService {
             }
 
             //jwt生成token  失效单位：毫秒
-            String token = JwtUtils.createJWT(purePhoneNumber, 60 * 60 * 1000);
+            String token = JwtUtils.createJWT(purePhoneNumber, 60 * 60 * 1000,filter.getLoginType());
             return new ResultDto<>(Constant.Code.SUCC,Constant.ResultMsg.SUCC,token);
         }catch (Exception e){
             log.error("user login fail",e);

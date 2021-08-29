@@ -96,7 +96,7 @@ public class AdsOfflineEmpServicelmpl implements IAdsOfflineEmpService {
 
 
             //获取token
-            String token = JwtUtils.createJWT(filter.getPhone(), 24 * 60 * 60 * 1000);
+            String token = JwtUtils.createJWT(filter.getPhone(), 24 * 60 * 60 * 1000,filter.getLoginType());
 
             return new ResultDto<>(Constant.Code.SUCC,Constant.ResultMsg.SUCC,token);
         } catch (Exception e){

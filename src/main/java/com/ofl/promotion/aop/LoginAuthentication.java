@@ -10,4 +10,6 @@ import java.lang.annotation.*;
 @Target({ElementType.METHOD,ElementType.TYPE})
 public @interface LoginAuthentication {
 
+    int loginType() default 1; //1-小程序 2-PC端
+
 }

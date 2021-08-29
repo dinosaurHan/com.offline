@@ -36,6 +36,9 @@ public class LoginAuthAspects {
 
     @Around("@annotation(loginAuthentication)")
     public Object verifyToken(ProceedingJoinPoint pjp, LoginAuthentication loginAuthentication) throws Throwable{
+        //获取登录类型
+        int loginType = loginAuthentication.loginType();
+
         AdsOfflineBaseParam param = new AdsOfflineBaseParam();
         try {
             Object[] args = pjp.getArgs();
@@ -53,7 +56,7 @@ public class LoginAuthAspects {
                 throw new RuntimeException("校验失败");
             }
 
-            Claims claims = JwtUtils.parseJWT(token);
+            Claims claims = JwtUtils.parseJWT(token,loginType);
             Date expiration = claims.getExpiration();
             //当前时间大于设置的过期时间，失效
             if (new Date().getTime() > expiration.getTime()){
@@ -61,7 +64,7 @@ public class LoginAuthAspects {
             }
             //获取token中用户手机号
             param.setBasePhone(claims.getSubject());
-
+            param.setLoginType(loginType);
         } catch (SignatureException | MalformedJwtException e){
             //token illegality
             log.warn("The token is illegality:",e);
@@ -77,6 +80,7 @@ public class LoginAuthAspects {
             }
             //获取token中用户手机号
             param.setBasePhone(claims.getSubject());
+            param.setLoginType(loginType);
         }
 
         //4.process on

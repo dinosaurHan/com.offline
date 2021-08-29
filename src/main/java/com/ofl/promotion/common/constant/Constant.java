@@ -68,4 +68,12 @@ public class Constant {
         int DOUYIN = 1;
     }
 
+    /*
+    * 登录类型
+    */
+    public interface LoginType{
+        int APPLET = 1;//小程序
+        int PC = 1;//PC端
+
+    }
 }
