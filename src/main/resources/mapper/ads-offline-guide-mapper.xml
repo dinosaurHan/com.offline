@@ -136,7 +136,7 @@
 	</select>
 
 	<update id="update" parameterType="com.ofl.promotion.manage.guide.entity.filter.AdsOfflineGuideFilter">
-		update
+		update ofl_guide
 		<set>
 			<if test="status != null">
 				status = #{status},
@@ -144,6 +144,7 @@
 			<if test="delFlag != null">
 				del_flag = #{delFlag},
 			</if>
+			update_time = unix_timestamp(),
 		</set>
 		<where>
 			<if test="guideId != null">

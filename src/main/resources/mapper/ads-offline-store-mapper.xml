@@ -61,28 +61,23 @@
 	</sql>
 
 	<!-- 编辑 -->
-	<update id="updateOflStore" parameterType="com.ofl.promotion.manage.store.entity.filter.AdsOfflineStoreFilter">
+	<update id="update" parameterType="com.ofl.promotion.manage.store.entity.filter.AdsOfflineStoreFilter">
 		update ofl_store
 		<set>
 			<if test = "storeName != null ">
 				store_name = #{storeName},
 			</if>
-			<if test = "orgId != null ">
-				org_id = #{orgId},
+			<if test = "status != null ">
+				status = #{status},
 			</if>
 			<if test = "delFlag != null ">
 				del_flag = #{delFlag},
 			</if>
-			<if test = "insertTime != null ">
-				insert_time = #{insertTime},
-			</if>
-			<if test = "updateTime != null ">
-				update_time = #{updateTime}
-			</if>
+			update_time = unix_timestamp(),
 		</set>
 		<where>
 			<if test = "storeId != null ">
-				store_id = #{storeId},
+				store_id = #{storeId}
 			</if>
 		</where>
 	</update>

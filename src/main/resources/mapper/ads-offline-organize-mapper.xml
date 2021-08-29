@@ -152,9 +152,7 @@
             <if test = "insertTime != null ">
                 insert_time = #{insertTime},
             </if>
-            <if test = "updateTime != null ">
-                update_time = #{updateTime}
-            </if>
+            update_time = unix_timestamp(),
         </set>
         <where>
             <if test = "organizeId != null ">

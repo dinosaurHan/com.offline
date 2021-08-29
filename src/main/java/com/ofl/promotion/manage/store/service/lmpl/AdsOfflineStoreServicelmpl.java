@@ -154,12 +154,23 @@ public class AdsOfflineStoreServicelmpl implements IAdsOfflineStoreService {
     @Override
     public ResultDto<Void> batchUpdStoreStatus(AdsOfflineStoreFilter filter) {
         try{
+            if (CollectionUtils.isEmpty(filter.getStoreIdList())){
+                return new ResultDto<>();
+            }
 
+            //修改门店状态
+            for (Long storeId : filter.getStoreIdList()) {
+                filter.setStoreId(storeId);
+                if (adsOfflineStoreMapper.update(filter) < 0){
+                    log.error("batchUpdStoreStatus fail param:{}",JSON.toJSONString(filter));
+                }
+            }
+
+            return new ResultDto<>();
         }catch (Exception e){
             log.error("batchUpdStoreStatus fail",e);
             return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SYSTEM_ERROR);
         }
-        return null;
     }
 
     @Override

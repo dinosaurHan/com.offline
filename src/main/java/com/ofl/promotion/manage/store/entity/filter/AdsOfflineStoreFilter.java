@@ -4,6 +4,7 @@ import com.ofl.promotion.manage.store.entity.AdsOfflineStore;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @Author Mr.quan
@@ -19,4 +20,6 @@ public class AdsOfflineStoreFilter extends AdsOfflineStore implements Serializab
     private int page;
 
     private int pageSize;
+
+    private List<Long> storeIdList;
 }

@@ -16,4 +16,6 @@ public interface IAdsOfflineStoreMapper {
     int storeCount(AdsOfflineStoreFilter filter);
 
     List<AdsOfflineStoreVo> findAllByOrgIds(AdsOfflineStoreFilter store);
+
+    int update(AdsOfflineStoreFilter filter);
 }
