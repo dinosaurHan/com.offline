@@ -27,4 +27,6 @@ public class AdsOfflineOrganizeFilter extends AdsOfflineOrganize implements Seri
     private List<AdsOfflineEmpFilter> leadList;
 
     private String parentIds;
+
+    private List<Long> organizeList;
 }

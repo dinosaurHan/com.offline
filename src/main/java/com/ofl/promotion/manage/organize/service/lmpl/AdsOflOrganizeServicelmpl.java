@@ -551,22 +551,48 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
     @Override
     public ResultDto<Void> batchUpdOrgStatus(AdsOfflineOrganizeFilter filter) {
         try{
+            if (CollectionUtils.isEmpty(filter.getOrganizeList()) || filter.getStatus() == null){
+                log.error("organizeIdList || status is empty:{}",JSON.toJSONString(filter));
+                return new ResultDto<>(Constant.Code.FAIL,"");
+            }
 
+            for (Long organizeId: filter.getOrganizeList()) {
+                AdsOfflineOrganizeFilter organizeFilter = new AdsOfflineOrganizeFilter();
+                organizeFilter.setOrganizeId(organizeId);
+                organizeFilter.setStatus(filter.getStatus());
+                if (adsOfflineOrganizeMapper.updateOrg(organizeFilter) < 0){
+                     log.error("batchUpdOrgStatus fail param:{}",JSON.toJSONString(organizeFilter));
+                }
+            }
+
+            return new ResultDto<>();
         }catch (Exception e){
             log.error("batchUpdOrgStatus fail",e);
             return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SYSTEM_ERROR);
         }
-        return null;
     }
 
     @Override
     public ResultDto<Void> delOrg(AdsOfflineOrganizeFilter filter) {
         try{
+            if (CollectionUtils.isEmpty(filter.getOrganizeList())){
+                log.error("organizeIdList || status is empty:{}",JSON.toJSONString(filter));
+                return new ResultDto<>(Constant.Code.FAIL,"");
+            }
 
+            for (Long organizeId: filter.getOrganizeList()) {
+                AdsOfflineOrganizeFilter organizeFilter = new AdsOfflineOrganizeFilter();
+                organizeFilter.setOrganizeId(organizeId);
+                organizeFilter.setDelFlag(Constant.DelFlag.INVALID);
+                if (adsOfflineOrganizeMapper.updateOrg(organizeFilter) < 0){
+                    log.error("batchUpdOrgStatus fail param:{}",JSON.toJSONString(organizeFilter));
+                }
+            }
+
+            return new ResultDto<>();
         }catch (Exception e){
             log.error("delOrg fail",e);
             return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SYSTEM_ERROR);
         }
-        return null;
     }
 }
