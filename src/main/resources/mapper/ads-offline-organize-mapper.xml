@@ -127,7 +127,8 @@
     </sql>
 
     <!-- 新增 -->
-    <insert id="addOflOrg" parameterType="com.ofl.promotion.manage.organize.entity.filter.AdsOfflineOrganizeFilter">
+    <insert id="addOflOrg" parameterType="com.ofl.promotion.manage.organize.entity.filter.AdsOfflineOrganizeFilter"
+            keyProperty="organizeId" useGeneratedKeys="true">
         insert into ofl_org(
         <include refid="sql_add_columns"/>
         )values(
@@ -139,8 +140,8 @@
     <update id="updateOrg" parameterType="com.ofl.promotion.manage.organize.entity.filter.AdsOfflineOrganizeFilter">
         update ofl_org
         <set>
-            <if test = "orgName != null ">
-                org_name = #{orgName},
+            <if test = "organizeName != null ">
+                org_name = #{organizeName},
             </if>
             <if test = "status != null ">
                 status = #{status},
@@ -157,7 +158,7 @@
         </set>
         <where>
             <if test = "organizeId != null ">
-                org_id = #{organizeId},
+                org_id = #{organizeId}
             </if>
         </where>
     </update>

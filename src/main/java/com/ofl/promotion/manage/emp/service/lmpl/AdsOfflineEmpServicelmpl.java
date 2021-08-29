@@ -60,12 +60,17 @@ public class AdsOfflineEmpServicelmpl implements IAdsOfflineEmpService {
     @Override
     public ResultDto<Void> updateEmp(AdsOfflineEmpFilter adsOfflineEmpFilter) {
         try{
+            if (adsOfflineEmpFilter.getEmpId() == null){
+                log.error("empId is empty param:{}",JSON.toJSONString(adsOfflineEmpFilter));
+                return new ResultDto<>(Constant.Code.FAIL,"empId is empty");
+            }
 
+            int  a = adsOfflineEmpMapper.update(adsOfflineEmpFilter);
+            return new ResultDto<>();
         } catch (Exception e){
             log.error("updateEmp fail",e);
             return new ResultDto<>(Constant.Code.FAIL, Constant.ResultMsg.SYSTEM_ERROR);
         }
-        return null;
     }
 
     @Override

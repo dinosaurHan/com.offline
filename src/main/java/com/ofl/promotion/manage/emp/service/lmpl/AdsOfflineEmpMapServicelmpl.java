@@ -33,9 +33,9 @@ public class AdsOfflineEmpMapServicelmpl implements IAdsOfflineEmpMapService {
     @Override
     public ResultDto<Void> queryLead(AdsOfflineEmpMapFilter filter) {
         try{
-            if (CollectionUtils.isEmpty(filter.getLeadList()) || filter.getOrganizeId() == null){
-                log.error("findLead param is invalid:{}");
-                return new ResultDto<>(Constant.Code.FAIL,"leadList is empty");
+            if (CollectionUtils.isEmpty(filter.getLeadList()) || StringUtils.isBlank(filter.getAncestorIds())){
+                log.error("findLead param is invalid:{}",JSON.toJSONString(filter));
+                return new ResultDto<>(Constant.Code.FAIL,"leadList || organizeId is empty");
             }
 
             //封装所有新增负责人的手机号
@@ -75,9 +75,19 @@ public class AdsOfflineEmpMapServicelmpl implements IAdsOfflineEmpMapService {
     }
 
     @Override
-    public int addEmpMap(AdsOfflineEmpMapFilter empMapFilter) {
+    public ResultDto<Void> addEmpMap(AdsOfflineEmpMapFilter empMapFilter) {
+        try{
 
-        return 0;
+            int add = adsOfflineEmpMapMapper.add(empMapFilter);
+            if (add < 0){
+                log.error("addEmpMap fail param:{}",JSON.toJSONString(empMapFilter));
+                return new ResultDto<>(Constant.Code.FAIL, Constant.ResultMsg.SYSTEM_ERROR);
+            }
+            return new ResultDto<>(Constant.Code.SUCC, Constant.ResultMsg.SUCC);
+        }catch (Exception e){
+            log.error("addLowerLevel fail",e);
+            return new ResultDto<>(Constant.Code.FAIL, Constant.ResultMsg.SYSTEM_ERROR);
+        }
     }
 
     @Override

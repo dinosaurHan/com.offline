@@ -28,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -62,6 +63,7 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
     private static final String COMMA = ",";
 
     @Override
+    @Transactional
     public ResultDto<AdsOfflineOrganize> addLowerLevel(AdsOfflineOrganizeFilter filter) {
         try {
             //校验入参
@@ -111,11 +113,11 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
             return new ResultDto<>(Constant.Code.SUCC,Constant.ResultMsg.SUCC,addResult.getData());
         }catch (Exception e){
             log.error("addLowerLevel fail",e);
-            return new ResultDto<>(Constant.Code.FAIL, Constant.ResultMsg.SYSTEM_ERROR);
+            throw new RuntimeException(Constant.ResultMsg.SYSTEM_ERROR);
         }
     }
 
-    private ResultDto<AdsOfflineOrganize> addLowerLevelOrgOrStore(AdsOfflineOrganizeFilter filter) {
+    private ResultDto<AdsOfflineOrganize> addLowerLevelOrgOrStore(AdsOfflineOrganizeFilter filter) throws RuntimeException {
 
         //添加机构
         Long organizeId = null;
@@ -123,17 +125,17 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
 
             //添加下级机构
             filter.setOrganizeName(filter.getLowerOrgName());
-            organizeId = adsOfflineOrganizeMapper.addOflOrg(filter);
-            if (organizeId <= 0){
+            Long addOrg = adsOfflineOrganizeMapper.addOflOrg(filter);
+            if (addOrg <= 0){
                 log.error("addLowerLevel addOflOrg fail:{}", JSON.toJSONString(filter));
                 return new ResultDto<>(Constant.Code.FAIL, "addLowerLevel addOflOrg fail");
             }
 
+            organizeId = filter.getOrganizeId();
             //添加下级机构负责人,门店无需添加负责人
-            if (CollectionUtils.isEmpty(filter.getLeadList())){
-                return new ResultDto<>();
+            if (!CollectionUtils.isEmpty(filter.getLeadList())){
+                addLowerLevelLead(filter.getLeadList(),organizeId);
             }
-            addLowerLevelLead(filter.getLeadList(),organizeId);
 
         }else if (filter.getLowerOrgType() == Constant.LowerLevelType.STORE){
             //添加下级门店
@@ -156,7 +158,7 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
         AdsOfflineOrganize adsOfflineOrganize = new AdsOfflineOrganize();
         adsOfflineOrganize.setParentId(filter.getParentId());
         adsOfflineOrganize.setOrganizeName(filter.getLowerOrgName());
-        adsOfflineOrganize.setOrganizeId(organizeId);
+        adsOfflineOrganize.setOrganizeId(filter.getOrganizeId());
         return new ResultDto<>(Constant.Code.SUCC,null,adsOfflineOrganize);
     }
 
@@ -175,7 +177,7 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
         return false;
     }
 
-    private void addLowerLevelLead(List<AdsOfflineEmpFilter> leadList,Long organizeId) {
+    private void addLowerLevelLead(List<AdsOfflineEmpFilter> leadList,Long organizeId) throws RuntimeException{
 
         //校验添加机构负责人
         for (AdsOfflineEmpFilter filter : leadList) {
@@ -186,29 +188,32 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
             ResultDto<AdsOfflineEmp> empResultDto = adsOfflineEmpService.findOne(empFilter);
             if (empResultDto.getRet() != Constant.Code.SUCC){
                 log.error("addLowerLevelLead findOne fail ret:{}|msg:{}",empResultDto.getRet(),empResultDto.getMsg());
-                return;
+                throw new RuntimeException();
             }
 
             //没有该成员,添加该成员
             Long empId = null;
             if (empResultDto.getData() == null){
-                empFilter.setName(filter.getName());
+                empFilter.setEmpName(filter.getName());
                 ResultDto<Long> addEmpResultDto = adsOfflineEmpService.addEmp(empFilter);
                 if (addEmpResultDto.getRet() != Constant.Code.SUCC){
                     log.error("addLowerLevelLead addEmp fail ret:{}|msg:{}",addEmpResultDto.getRet(),addEmpResultDto.getMsg());
-                    return;
+                    throw new RuntimeException();
                 }
 
-                empId = addEmpResultDto.getData();
+                empId = empFilter.getEmpId();
+            }else {
+                empId = empResultDto.getData().getEmpId();
             }
 
             //添加负责人
             AdsOfflineEmpMapFilter empMapFilter = new AdsOfflineEmpMapFilter();
             empMapFilter.setEmpId(empId);
             empMapFilter.setOrganizeId(organizeId);
-            if (adsOfflineEmpMapService.addEmpMap(empMapFilter) <= 0){
+            ResultDto<Void> addEmpMapresultDto = adsOfflineEmpMapService.addEmpMap(empMapFilter);
+            if (addEmpMapresultDto.getRet() != Constant.Code.SUCC){
                 log.error("addLowerLevelLead addEmpMap fail param:{}",JSON.toJSONString(empMapFilter));
-                return;
+                throw new RuntimeException();
             }
         }
     }
@@ -280,6 +285,7 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
     }
 
     @Override
+    @Transactional
     public ResultDto<Void> updOrgnize(AdsOfflineOrganizeFilter filter) {
         try{
             //校验入参
@@ -289,18 +295,24 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
             }
 
             //判断该机构是否存在
-            AdsOfflineOrganize offlineOrganize = adsOfflineOrganizeMapper.findOne(filter);
+            AdsOfflineOrganizeFilter offlineOrganizeFilter = new AdsOfflineOrganizeFilter();
+            offlineOrganizeFilter.setOrganizeId(filter.getOrganizeId());
+            AdsOfflineOrganize offlineOrganize = adsOfflineOrganizeMapper.findOne(offlineOrganizeFilter);
             if (offlineOrganize == null) {
                 return new ResultDto<>(Constant.Code.FAIL,"没有该机构");
             }
 
-            AdsOfflineEmpMapFilter empMapFilter = new AdsOfflineEmpMapFilter();
-            empMapFilter.setLeadList(filter.getLeadList());
-            empMapFilter.setAncestorIds(filter.getAncestorIds());
-            //判断是否已经成为负责人（同层级不能重复添加机构负责人）
-            ResultDto<Void> leadResult=  adsOfflineEmpMapService.queryLead(empMapFilter);
-            if (leadResult.getRet() != Constant.Code.SUCC) {
-                return new ResultDto<>(leadResult.getRet(),leadResult.getMsg());
+            //是否成为机构负责人
+            if (!CollectionUtils.isEmpty(filter.getLeadList())){
+
+                AdsOfflineEmpMapFilter empMapFilter = new AdsOfflineEmpMapFilter();
+                empMapFilter.setLeadList(filter.getLeadList());
+                empMapFilter.setAncestorIds(offlineOrganize.getAncestorIds() + COMMA +filter.getOrganizeId());
+                //判断是否已经成为负责人（同层级不能重复添加机构负责人）
+                ResultDto<Void> leadResult=  adsOfflineEmpMapService.queryLead(empMapFilter);
+                if (leadResult.getRet() != Constant.Code.SUCC) {
+                    return new ResultDto<>(leadResult.getRet(),leadResult.getMsg());
+                }
             }
 
             //修改机构状态
@@ -312,6 +324,9 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
                 log.error("updateOrg fail param:{}",JSON.toJSONString(organizeFilter));
             }
 
+            if (CollectionUtils.isEmpty(filter.getLeadList())){
+                return new ResultDto<>(Constant.Code.SUCC,Constant.ResultMsg.SUCC);
+            }
             //修改人员信息
             for (AdsOfflineEmpFilter adsOfflineEmpFilter : filter.getLeadList()) {
 
@@ -320,12 +335,11 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
                     log.error("updOrgnize updateEmp fail:{}",JSON.toJSONString(adsOfflineEmpFilter));
                 }
             }
-
+            return new ResultDto<>(Constant.Code.SUCC,Constant.ResultMsg.SUCC);
         }catch (Exception e){
             log.error("updOrgnize fail",e);
-            return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SYSTEM_ERROR);
+            throw new RuntimeException();
         }
-        return null;
     }
 
     @Override
@@ -357,6 +371,7 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
                 AdsOfflineOrgLead lead = new AdsOfflineOrgLead();
                 lead.setName(emp.getEmpName());
                 lead.setPhone(emp.getPhone());
+                lead.setEmpId(emp.getEmpId());
 
                 offlineOrgLeads.add(lead);
             }

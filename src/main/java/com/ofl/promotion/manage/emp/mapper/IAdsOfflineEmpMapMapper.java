@@ -17,4 +17,7 @@ public interface IAdsOfflineEmpMapMapper {
     List<AdsOfflineEmpMap> queryLead(AdsOfflineEmpMapFilter empMap);
 
     List<AdsOfflineEmp> findEmpMapByOrgId(AdsOfflineEmpFilter empFilter);
+
+    int add(AdsOfflineEmpMapFilter empMapFilter);
+
 }

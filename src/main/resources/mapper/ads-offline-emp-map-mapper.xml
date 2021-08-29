@@ -63,8 +63,7 @@
 	<sql id="sql_add_columns">
 		<trim suffixOverrides=",">
 			<if test="empId != null">emp_id,</if>
-			<if test="empName != null">emp_name,</if>
-			<if test="phone != null">phone,</if>
+			<if test="organizeId != null">org_id,</if>
 			<if test="delFlag != null">del_flag,</if>
 			insert_time,
 			update_time,
@@ -74,8 +73,7 @@
 	<sql id="sql_add_properties">
 		<trim suffixOverrides=",">
 				<if test="empId != null">#{empId},</if>
-				<if test="empName != null">#{empName},</if>
-				<if test="phone != null">#{phone},</if>
+				<if test="organizeId != null">#{organizeId},</if>
 				<if test="delFlag != null">#{delFlag},</if>
 				unix_timestamp(),
 				unix_timestamp(),
@@ -83,8 +81,8 @@
 	</sql>
 	
 	<!-- 新增 -->
-	<insert id="addOflEmp" parameterType="com.ofl.promotion.manage.emp.entity.filter.AdsOfflineEmpMapFilter">
-		insert into ofl_emp(
+	<insert id="add" parameterType="com.ofl.promotion.manage.emp.entity.filter.AdsOfflineEmpMapFilter">
+		insert into ofl_org_emp_map(
 			<include refid="sql_add_columns"/>
 		)values(
 			<include refid="sql_add_properties"/>
@@ -93,28 +91,16 @@
 
 	<!-- 编辑 -->
 	<update id="updateOflEmp" parameterType="com.ofl.promotion.manage.emp.entity.filter.AdsOfflineEmpMapFilter">
-		update ofl_emp record 
+		update ofl_org_emp_map
 			<set>
-					<if test = "empId != null ">
-						emp_id = #{empId},
-					</if>
-					<if test = "empName != null ">
-						emp_name = #{empName},
-					</if>
-					<if test = "phone != null ">
-						phone = #{phone},
-					</if>
 					<if test = "delFlag != null ">
 						del_flag = #{delFlag},
-					</if>
-					<if test = "insertTime != null ">
-						insert_time = #{insertTime},
 					</if>
 					<if test = "updateTime != null ">
 						update_time = #{updateTime}
 					</if>
 			</set>
-		where emp_id = #{emp_id}
+		where emp_id = #{empId}
 	</update>
 	
 	<select id="findEmpMapByOrgId" parameterType="com.ofl.promotion.manage.emp.entity.filter.AdsOfflineEmpMapFilter"

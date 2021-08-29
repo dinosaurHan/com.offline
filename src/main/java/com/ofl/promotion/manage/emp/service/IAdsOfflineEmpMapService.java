@@ -18,7 +18,7 @@ public interface IAdsOfflineEmpMapService {
 
     ResultDto<Void> queryLead(AdsOfflineEmpMapFilter filter);
 
-    int addEmpMap(AdsOfflineEmpMapFilter empMapFilter);
+    ResultDto<Void> addEmpMap(AdsOfflineEmpMapFilter empMapFilter);
 
     ResultDto<List<AdsOfflineEmp>> findOrgEmp(AdsOfflineEmpFilter empFilter);
 }

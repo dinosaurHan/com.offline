@@ -40,4 +40,6 @@ public interface IAdsOfflineEmpMapper {
 	AdsOfflineEmp findOne(AdsOfflineEmpFilter filter);
 
 	Long add(AdsOfflineEmpFilter filter);
+
+    int update(AdsOfflineEmpFilter adsOfflineEmpFilter);
 }

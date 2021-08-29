@@ -16,4 +16,6 @@ public class AdsOfflineOrgLead extends AdsOfflineOrganize {
 
     private String phone;
 
+    private Long empId;
+
 }
