@@ -24,6 +24,7 @@
 		<result property="updateTime" column="update_time" />
 		<result property="ancestorIds" column="ancestor_ids" />
 		<result property="organizeId" column="org_id" />
+		<result property="storeName" column="store_name" />
 	</resultMap>
 
 	<resultMap id="guideDyAuthMapper" type="com.ofl.promotion.manage.guide.entity.AdsOfflineGuideAuth">
@@ -77,9 +78,6 @@
 		LEFT JOIN ofl_org o
 		ON (o.org_id = s.org_id)
 		<where>
-			<if test="ancestorIds != null">
-				and o.ancestor_ids like concat(#{ancestorIds},'%')
-			</if>
 			<if test="status != null">
 				and g.status = #{status}
 			</if>
@@ -91,6 +89,9 @@
 			</if>
 			<if test="phone != null">
 				and g.phone = #{phone}
+			</if>
+			<if test="ancestorIds != null">
+				and o.ancestor_ids like concat(#{ancestorIds},'%')
 			</if>
 		</where>
 	</select>

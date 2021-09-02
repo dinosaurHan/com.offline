@@ -135,9 +135,20 @@ public class AdsOfflineStoreServicelmpl implements IAdsOfflineStoreService {
                 return new ResultDto<>(Constant.Code.FAIL,"没有该机构");
             }
 
+            //查询筛选条件下的机构
+            AdsOfflineOrganizeFilter queryOrg = new AdsOfflineOrganizeFilter();
+            queryOrg.setAncestorIds(organizeResult.getData().getAncestorIds() + COMMA + filter.getOrganizeId());
+            queryOrg.setOrganizeName(filter.getOrganizeName());
+            queryOrg.setOrganizeLevel(filter.getOrganizeLevel());
+            ResultDto<AdsOfflineOrganize> queryOrgRel = adsOflOrganizeService.queryOrg(queryOrg);
+            if (queryOrgRel.getRet() != Constant.Code.SUCC || queryOrgRel.getData() == null) {
+                log.error("queryOrg fail:{}", JSON.toJSONString(organizeFilter));
+                return new ResultDto<>(Constant.Code.FAIL,"没有该机构");
+            }
+
             //查询门店信息
             AdsOfflineStoreFilter store = new AdsOfflineStoreFilter();
-            store.setAncestorIds(organizeResult.getData().getAncestorIds() + COMMA + filter.getOrganizeId());
+            store.setAncestorIds(queryOrgRel.getData().getAncestorIds());
             store.setStoreName(filter.getStoreName());
             store.setStatus(filter.getStatus());
             PageHelper.startPage(filter.getPage(),filter.getPageSize());
@@ -210,6 +221,10 @@ public class AdsOfflineStoreServicelmpl implements IAdsOfflineStoreService {
         for (AdsOfflineStoreVo adsOfflineStoreVo : storeVoList) {
             String ancestorIds = adsOfflineStoreVo.getAncestorIds();
             if (StringUtils.isBlank(ancestorIds)){
+                continue;
+            }
+
+            if (adsOfflineStoreVo.getAncestorIds().length() < 4){
                 continue;
             }
 

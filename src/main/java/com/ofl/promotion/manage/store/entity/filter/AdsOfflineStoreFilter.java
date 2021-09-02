@@ -17,6 +17,10 @@ public class AdsOfflineStoreFilter extends AdsOfflineStore implements Serializab
 
     private String ancestorIds;
 
+    private String organizeName;
+
+    private Integer organizeLevel;
+
     private int page;
 
     private int pageSize;

@@ -440,7 +440,9 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
             }
 
             //判断该机构是否存在
-            AdsOfflineOrganize offlineOrganize = adsOfflineOrganizeMapper.findOne(filter);
+            AdsOfflineOrganizeFilter organizeFilter = new AdsOfflineOrganizeFilter();
+            organizeFilter.setOrganizeId(filter.getOrganizeId());
+            AdsOfflineOrganize offlineOrganize = adsOfflineOrganizeMapper.findOne(organizeFilter);
             if (offlineOrganize == null || StringUtils.isBlank(offlineOrganize.getAncestorIds())) {
                 return new ResultDto<>(Constant.Code.FAIL,"没有该机构");
             }

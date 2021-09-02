@@ -131,14 +131,20 @@
 		LEFT JOIN ofl_org o
 		ON(s.org_id = o.org_id)
 		<where>
-			<if test="ancestorIds != null">
-				and o.ancestor_ids like concat(#{ancestorIds},'%')
-			</if>
 			<if test="status != null">
 				and s.status = #{status}
 			</if>
 			<if test="storeName != null">
 				and s.store_name like concat('%',#{storeName},'%')
+			</if>
+			<if test="ancestorIds != null">
+				and o.ancestor_ids like concat(#{ancestorIds},'%')
+			</if>
+			<if test="organizeName != null">
+				and o.org_name like concat('%',#{organizeName},'%')
+			</if>
+			<if test="organizeLevel != null">
+				and o.org_level = #{organizeLevel}
 			</if>
 		</where>
 	</select>

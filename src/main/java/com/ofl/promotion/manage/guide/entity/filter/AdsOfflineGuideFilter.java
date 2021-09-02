@@ -19,6 +19,10 @@ public class AdsOfflineGuideFilter extends AdsOfflineGuide implements Serializab
 
     private Long organizeId;
 
+    private String organizeName;
+
+    private Integer organizeLevel;
+
     private String ancestorIds;
 
     private List<Long> guideIdList;

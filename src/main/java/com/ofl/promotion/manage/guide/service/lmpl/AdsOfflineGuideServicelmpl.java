@@ -132,9 +132,20 @@ public class AdsOfflineGuideServicelmpl implements IAdsOfflineGuideService {
                 return new ResultDto<>(Constant.Code.FAIL,"没有该机构");
             }
 
+            //查询筛选条件下的机构
+            AdsOfflineOrganizeFilter queryOrg = new AdsOfflineOrganizeFilter();
+            queryOrg.setAncestorIds(organizeResult.getData().getAncestorIds() + COMMA + filter.getOrganizeId());
+            queryOrg.setOrganizeName(filter.getOrganizeName());
+            queryOrg.setOrganizeLevel(filter.getOrganizeLevel());
+            ResultDto<AdsOfflineOrganize> queryOrgRel = adsOflOrganizeService.queryOrg(queryOrg);
+            if (queryOrgRel.getRet() != Constant.Code.SUCC || queryOrgRel.getData() == null) {
+                log.error("queryOrg fail:{}", JSON.toJSONString(organizeFilter));
+                return new ResultDto<>(Constant.Code.FAIL,"没有该机构");
+            }
+
             //查询导购
             AdsOfflineGuideFilter queryFilter = new AdsOfflineGuideFilter();
-            queryFilter.setAncestorIds(organizeResult.getData().getAncestorIds() + COMMA + filter.getOrganizeId());
+            queryFilter.setAncestorIds(queryOrgRel.getData().getAncestorIds());
             queryFilter.setGuideName(filter.getGuideName());
             queryFilter.setStatus(filter.getStatus());
             queryFilter.setPhone(filter.getPhone());
