@@ -15,7 +15,7 @@ public interface IAdsOfflineEmpService {
 
     ResultDto<AdsOfflineEmp> findOne(AdsOfflineEmpFilter filter);
 
-    ResultDto<Long> addEmp(AdsOfflineEmpFilter filter);
+    ResultDto<Void> addEmp(AdsOfflineEmpFilter filter);
 
     ResultDto<Void> updateEmp(AdsOfflineEmpFilter filter);
 

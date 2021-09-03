@@ -231,6 +231,27 @@ public class AdsOfflineGuideServicelmpl implements IAdsOfflineGuideService {
         return null;
     }
 
+    @Override
+    public ResultDto<Void> addGuide(AdsOfflineGuideFilter offlineGuideFilter) {
+        try{
+            if (StringUtils.isBlank(offlineGuideFilter.getGuideName()) || StringUtils.isBlank(offlineGuideFilter.getPhone())
+                    || offlineGuideFilter.getStoreId() == null){
+                log.error("guideName || phone || storeId is empty param:{}",JSON.toJSONString(offlineGuideFilter));
+                return new ResultDto<>(Constant.Code.FAIL,"guideName || phone || storeId is empty");
+            }
+
+            if (adsOfflineGuideMapper.add(offlineGuideFilter) < 0){
+                log.error("add guide fail",JSON.toJSONString(offlineGuideFilter));
+                return new ResultDto<>(Constant.Code.FAIL,"add guide fail");
+            }
+
+            return new ResultDto<>(Constant.Code.SUCC,null);
+        }catch (Exception e){
+            log.error("addGuide fail",e);
+            return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SYSTEM_ERROR);
+        }
+    }
+
     private void addOrgHightLevel(List<AdsOfflineGuideVo> guideList) {
         for (AdsOfflineGuideVo adsOfflineGuideVo : guideList) {
             String ancestorIds = adsOfflineGuideVo.getAncestorIds();

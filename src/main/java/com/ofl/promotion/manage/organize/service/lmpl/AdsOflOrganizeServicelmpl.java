@@ -12,6 +12,7 @@ import com.ofl.promotion.manage.emp.entity.AdsOfflineEmp;
 import com.ofl.promotion.manage.emp.entity.filter.AdsOfflineEmpFilter;
 import com.ofl.promotion.manage.emp.entity.filter.AdsOfflineEmpMapFilter;
 import com.ofl.promotion.manage.emp.service.IAdsOfflineEmpMapService;
+import com.ofl.promotion.manage.guide.entity.AdsOfflineGuide;
 import com.ofl.promotion.manage.guide.entity.filter.AdsOfflineGuideFilter;
 import com.ofl.promotion.manage.guide.service.IAdsOfflineGuideService;
 import com.ofl.promotion.manage.organize.entity.AdsOfflineOrgLead;
@@ -92,7 +93,7 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
                 empMapFilter.setLeadList(filter.getLeadList());
                 empMapFilter.setAncestorIds(offlineOrganize.getAncestorIds());
                 //判断是否已经成为负责人（同层级不能重复添加机构负责人）
-                ResultDto<Void> leadResult=  adsOfflineEmpMapService.queryLead(empMapFilter);
+                ResultDto<Void> leadResult=  adsOfflineEmpMapService.existLead(empMapFilter);
                 if (leadResult.getRet() != Constant.Code.SUCC){
                     return new ResultDto<>(leadResult.getRet(),leadResult.getMsg());
                 }
@@ -213,7 +214,7 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
             Long empId = null;
             if (empResultDto.getData() == null){
                 empFilter.setEmpName(filter.getName());
-                ResultDto<Long> addEmpResultDto = adsOfflineEmpService.addEmp(empFilter);
+                ResultDto<Void> addEmpResultDto = adsOfflineEmpService.addEmp(empFilter);
                 if (addEmpResultDto.getRet() != Constant.Code.SUCC){
                     log.error("addLowerLevelLead addEmp fail ret:{}|msg:{}",addEmpResultDto.getRet(),addEmpResultDto.getMsg());
                     throw new RuntimeException();
@@ -237,6 +238,7 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
     }
 
     @Override
+    @Transactional
     public ResultDto<AdsOfflineOrganize> importExcel(MultipartFile file, Long organizeId) {
         try{
 
@@ -253,32 +255,186 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
             if (offlineOrganize == null){
                 return new ResultDto<>(Constant.Code.FAIL,"不存在该机构");
             }
+
             //获取父级信息
-            organizeFilter.setOrganizeId(organizeFilter.getParentId());
+            organizeFilter.setOrganizeId(offlineOrganize.getParentId());
             AdsOfflineOrganize parentOrganize = adsOfflineOrganizeMapper.findOne(organizeFilter);
             if (parentOrganize == null){
                 return new ResultDto<>(Constant.Code.FAIL,"组织架构层级错误");
             }
 
+            //获取excel数据
             List<AdsOfflineOrganizeExcel> excelList = ExcelUtils.handelExcel(file.getOriginalFilename(), file, AdsOfflineOrganizeExcel.class);
-            System.out.println(JSON.toJSONString(excelList));
-            for (AdsOfflineOrganizeExcel organizeExcel : excelList) {
-                //判断excel中导入该的组织名称是否一致
-                String excelLevelOrgName = getExcelOrgLevel(offlineOrganize.getOrganizeLevel(),organizeExcel);
-                if (!offlineOrganize.getOrganizeName().equals(excelLevelOrgName)){
-                    return new ResultDto<>(Constant.Code.FAIL,offlineOrganize.getOrganizeName()+"该组织名称填写错误");
-                }
 
-                //校验父级名称是否一致
+            //处理excel数据
+            ResultDto<AdsOfflineOrganize> handExcelData = handExcelData(offlineOrganize, parentOrganize, excelList);
+            if (handExcelData.getRet() != Constant.Code.SUCC) return handExcelData;
 
-
-
-            }
-
+            return new ResultDto<>();
         }catch (Exception e){
             log.error("importExcel fail",e);
+            return new ResultDto<>(Constant.Code.FAIL,e.getMessage());
         }
-        return null;
+    }
+
+    private ResultDto<AdsOfflineOrganize> handExcelData(AdsOfflineOrganize offlineOrganize, AdsOfflineOrganize parentOrganize, List<AdsOfflineOrganizeExcel> excelList) {
+        int rowsNum = 1;
+        for (AdsOfflineOrganizeExcel organizeExcel : excelList) {
+            //校验组织名称
+            ResultDto<AdsOfflineOrganize> excelLevelOrgName = checkOrgName(offlineOrganize, parentOrganize, organizeExcel);
+            if (excelLevelOrgName.getRet() != Constant.Code.SUCC) return excelLevelOrgName;
+
+            //创建下级组织机构
+            Integer organizeLevel = offlineOrganize.getOrganizeLevel() + 1;
+            System.out.println(organizeLevel);
+            while (organizeLevel <= Constant.LowerLevel.FOUR) {
+                addOrgByExcel(offlineOrganize, organizeExcel, organizeLevel);
+                organizeLevel = organizeLevel +1;
+            }
+
+            if (StringUtils.isBlank(organizeExcel.getStoreName())){
+                continue;
+            }
+
+            //获取门店id, （门店没有则创建，存在则取现有storeId）
+            Long storeId = getStoreId(offlineOrganize, organizeExcel);
+
+            //创建人员和导购
+            addEmpAndGuide(rowsNum, organizeExcel, storeId);
+
+            rowsNum++;
+        }
+        return new ResultDto<>();
+    }
+
+    private void addEmpAndGuide(int rowsNum, AdsOfflineOrganizeExcel organizeExcel, Long storeId) {
+        //判断当前手机号是否成为导购
+        if (StringUtils.isNotBlank(organizeExcel.getGuidePhone()) && storeId != null){
+            AdsOfflineGuideFilter guideFilter = new AdsOfflineGuideFilter();
+            guideFilter.setPhone(organizeExcel.getGuidePhone());
+            guideFilter.setStoreId(storeId);
+            ResultDto<AdsOfflineGuide> guideResultDto = adsOfflineGuideService.findOne(guideFilter);
+            if (guideResultDto.getRet() != Constant.Code.SUCC || guideResultDto.getData() != null) {
+                log.error("importExcel guide repeat:{}", JSON.toJSONString(guideResultDto.getData()));
+                throw new RuntimeException("excel中第" + rowsNum + "行导购手机号码已存在，请检查后重新提交");
+            }
+
+            if (StringUtils.isBlank(organizeExcel.getGuideName())){
+                throw new RuntimeException("excel中第" + rowsNum + "行导购导购名称不存在，请检查后重新提交");
+            }
+
+            //查询该成员
+            AdsOfflineEmpFilter empFilter = new AdsOfflineEmpFilter();
+            empFilter.setEmpName(organizeExcel.getGuideName());
+            empFilter.setPhone(organizeExcel.getGuidePhone());
+            ResultDto<AdsOfflineEmp> empResultDto = adsOfflineEmpService.findOne(empFilter);
+            if (empResultDto.getRet() != Constant.Code.SUCC){
+                log.error("importExcel find emp fail param:{}",JSON.toJSONString(empFilter));
+                throw new RuntimeException("importExcel find emp fail param");
+            }
+
+            //创建该成员
+            if (empResultDto.getData() == null){
+                ResultDto<Void> addEmpResultDto = adsOfflineEmpService.addEmp(empFilter);
+                if (addEmpResultDto.getRet() != Constant.Code.SUCC){
+                    log.error("importExcel add emp fail ret:{}|msg:{}",addEmpResultDto.getRet(),addEmpResultDto.getMsg());
+                    throw new RuntimeException("importExcel add emp fail");
+                }
+            }
+
+            //创建导购
+            AdsOfflineGuideFilter offlineGuideFilter = new AdsOfflineGuideFilter();
+            offlineGuideFilter.setPhone(organizeExcel.getGuidePhone());
+            offlineGuideFilter.setGuideName(organizeExcel.getGuideName());
+            offlineGuideFilter.setStoreId(storeId);
+            ResultDto<Void> addGuideResult = adsOfflineGuideService.addGuide(offlineGuideFilter);
+            if (addGuideResult.getRet() != Constant.Code.SUCC){
+                log.error("importExcel add guide fail ret:{}|msg:{}",addGuideResult.getRet(),addGuideResult.getMsg());
+                throw new RuntimeException("importExcel add guide fail");
+            }
+        }
+    }
+
+    private Long getStoreId(AdsOfflineOrganize offlineOrganize, AdsOfflineOrganizeExcel organizeExcel) {
+        //查询门店
+        AdsOfflineStoreFilter storeFilter = new AdsOfflineStoreFilter();
+        storeFilter.setStoreName(organizeExcel.getStoreName());
+        ResultDto<AdsOfflineStore> storeResultDto = adsOfflineStoreService.findOne(storeFilter);
+        if (storeResultDto.getRet() != Constant.Code.SUCC){
+            log.error("importExcel query store fail param:{}", JSON.toJSONString(storeFilter));
+            throw new RuntimeException("门店查询失败");
+        }
+
+        //获取门店id
+        Long storeId = null;
+        if (storeResultDto.getData() == null){
+            //创建门店
+            storeFilter.setOrganizeId(offlineOrganize.getOrganizeId());
+            ResultDto<Void> addStore = adsOfflineStoreService.addStore(storeFilter);
+            if (addStore.getRet() != Constant.Code.SUCC){
+                log.error("importExcel add store fail param:{}",JSON.toJSONString(storeFilter));
+                throw new RuntimeException("新增门店失败");
+            }
+            storeId = storeFilter.getStoreId();
+        }else {
+            storeId = storeResultDto.getData().getStoreId();
+        }
+        return storeId;
+    }
+
+    private ResultDto<AdsOfflineOrganize> checkOrgName(AdsOfflineOrganize offlineOrganize, AdsOfflineOrganize parentOrganize, AdsOfflineOrganizeExcel organizeExcel) {
+        //判断excel中导入该的组织名称是否一致,超级管理员不用判断父级机构
+        if (offlineOrganize.getOrganizeLevel() != Constant.LowerLevel.ZERO){
+            //获取excel组织名称
+            String excelLevelOrgName = getExcelOrgLevel(offlineOrganize.getOrganizeLevel(),organizeExcel);
+            if (StringUtils.isBlank(excelLevelOrgName)){
+                return new ResultDto<>(Constant.Code.FAIL,"该层级的机构名称为空");
+            }
+            if (!offlineOrganize.getOrganizeName().equals(excelLevelOrgName)){
+                return new ResultDto<>(Constant.Code.FAIL,excelLevelOrgName+"当前组织名称填写错误");
+            }
+
+            //层级大于1，判断父级
+            if (offlineOrganize.getOrganizeLevel() > Constant.LowerLevel.ONE){
+
+                //判断excel中导入该的父级组织名称是否一致
+                String excelParentOrgName = getExcelOrgLevel(offlineOrganize.getOrganizeLevel()-1,organizeExcel);
+                if (StringUtils.isBlank(excelParentOrgName)){
+                    return new ResultDto<>(Constant.Code.FAIL,"该层级的父级机构名称为空");
+                }
+
+                if (!parentOrganize.getOrganizeName().equals(excelParentOrgName)){
+                    return new ResultDto<>(Constant.Code.FAIL,excelLevelOrgName+"当前层级所属上级信息错误，请检查后重新提交");
+                }
+            }
+        }
+        return new ResultDto<>();
+    }
+
+    private void addOrgByExcel(AdsOfflineOrganize offlineOrganize, AdsOfflineOrganizeExcel organizeExcel, Integer orgLevel) {
+        //获取机构名称
+        String createOrgName = getExcelOrgLevel(orgLevel,organizeExcel);
+        if (StringUtils.isNotBlank(createOrgName)) {
+
+            //判断该组织架构是否存在
+            AdsOfflineOrganizeFilter organizeFilter = new AdsOfflineOrganizeFilter();
+            organizeFilter.setOrganizeName(createOrgName);
+            AdsOfflineOrganize queryByOrgName= adsOfflineOrganizeMapper.findOne(organizeFilter);
+            if (queryByOrgName != null){
+                return;
+            }
+
+            //添加组织架构
+            AdsOfflineOrganizeFilter addOrgFilter = new AdsOfflineOrganizeFilter();
+            addOrgFilter.setOrganizeName(createOrgName);
+            addOrgFilter.setParentId(offlineOrganize.getOrganizeId());
+            addOrgFilter.setAncestorIds(offlineOrganize.getAncestorIds() + COMMA + offlineOrganize.getOrganizeId());
+            addOrgFilter.setOrganizeLevel(offlineOrganize.getOrganizeLevel() + 1);
+            if (adsOfflineOrganizeMapper.addOflOrg(addOrgFilter) < 0) {
+                log.error("importExcel addOrg fail param:{}", JSON.toJSONString(addOrgFilter));
+                throw new RuntimeException("新增组织机构失败");
+            }
+        }
     }
 
     private String getExcelOrgLevel(Integer organizeLevel,AdsOfflineOrganizeExcel organizeExcel) {
@@ -292,11 +448,11 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
         }
 
         if (organizeLevel == Constant.LowerLevel.THREE){
-            return organizeExcel.getTwoLevel();
+            return organizeExcel.getThreeLevel();
         }
 
         if (organizeLevel == Constant.LowerLevel.FOUR){
-            return organizeExcel.getTwoLevel();
+            return organizeExcel.getFourLevel();
         }
 
         return null;
@@ -327,7 +483,7 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
                 empMapFilter.setLeadList(filter.getLeadList());
                 empMapFilter.setAncestorIds(offlineOrganize.getAncestorIds() + COMMA +filter.getOrganizeId());
                 //判断是否已经成为负责人（同层级不能重复添加机构负责人）
-                ResultDto<Void> leadResult=  adsOfflineEmpMapService.queryLead(empMapFilter);
+                ResultDto<Void> leadResult=  adsOfflineEmpMapService.existLead(empMapFilter);
                 if (leadResult.getRet() != Constant.Code.SUCC) {
                     return new ResultDto<>(leadResult.getRet(),leadResult.getMsg());
                 }

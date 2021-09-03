@@ -4,6 +4,7 @@ import com.ofl.promotion.common.entity.ResultDto;
 import com.ofl.promotion.manage.emp.entity.filter.AdsOfflineEmpFilter;
 import com.ofl.promotion.manage.emp.service.IAdsOfflineEmpService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @Date 2021/8/23 1:29
  */
 @RestController
-@RequestMapping("/user")
+@RequestMapping("manage/user")
 public class AdsOfflineEmpController {
 
     @Autowired
@@ -22,7 +23,7 @@ public class AdsOfflineEmpController {
      * 用户登录
      */
     @RequestMapping("/login")
-    public ResultDto<Object> login(AdsOfflineEmpFilter filter){
+    public ResultDto<Object> login(@RequestBody AdsOfflineEmpFilter filter){
         return adsOfflineEmpService.login(filter);
     }
 
@@ -30,7 +31,7 @@ public class AdsOfflineEmpController {
      * 获取验证码
      */
     @RequestMapping("/getCode")
-    public ResultDto<Object> getIdentifyingCode(AdsOfflineEmpFilter filter){
+    public ResultDto<Object> getIdentifyingCode(@RequestBody AdsOfflineEmpFilter filter){
         return adsOfflineEmpService.getIdentifyingCode(filter);
     }
 }

@@ -9,6 +9,7 @@ import com.ofl.promotion.common.constant.Constant;
 import com.ofl.promotion.common.entity.ResultDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,7 +29,7 @@ public class AdsOfflineAppletController {
      * 用户登录 用户即导购
      */
     @RequestMapping("/user/login")
-    public ResultDto<String> login(AdsOfflineAppletFilter filter){
+    public ResultDto<String> login(@RequestBody AdsOfflineAppletFilter filter){
         return adsAppletService.login(filter);
     }
 
@@ -37,7 +38,7 @@ public class AdsOfflineAppletController {
      */
     @RequestMapping("/promotion/getUserInfo")
     @LoginAuthentication
-    public ResultDto<AdsOfflineApplet> getUserInfo(AdsOfflineAppletFilter filter){
+    public ResultDto<AdsOfflineApplet> getUserInfo(@RequestBody AdsOfflineAppletFilter filter){
         return adsAppletService.getUserInfo(filter);
     }
 
@@ -46,7 +47,7 @@ public class AdsOfflineAppletController {
      */
     @RequestMapping("/personal/getUserInfo")
     @LoginAuthentication
-    public ResultDto<AdsOfflineAppletInfo> getUserDetalInfo(AdsOfflineAppletFilter filter){
+    public ResultDto<AdsOfflineAppletInfo> getUserDetalInfo(@RequestBody AdsOfflineAppletFilter filter){
         return adsAppletService.getUserDetalInfo(filter);
     }
 
@@ -55,7 +56,7 @@ public class AdsOfflineAppletController {
      */
     @RequestMapping("/business/getData")
     @LoginAuthentication
-    public ResultDto<AdsOfflineApplet> getBusinessData(AdsOfflineAppletFilter filter){
+    public ResultDto<AdsOfflineApplet> getBusinessData(@RequestBody AdsOfflineAppletFilter filter){
         return adsAppletService.getBusinessData(filter);
     }
 
@@ -64,7 +65,7 @@ public class AdsOfflineAppletController {
      */
     @RequestMapping("/business/getDataInfo")
     @LoginAuthentication
-    public ResultDto<AdsOfflineApplet> getBusinessDataInfo(AdsOfflineAppletFilter filter){
+    public ResultDto<AdsOfflineApplet> getBusinessDataInfo(@RequestBody AdsOfflineAppletFilter filter){
         return adsAppletService.getBusinessDataInfo(filter);
     }
 }

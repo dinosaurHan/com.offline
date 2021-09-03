@@ -23,4 +23,6 @@ public interface IAdsOfflineGuideMapper {
     AdsOfflineGuideAuth findGuideDyAuth(AdsOfflineGuideFilter filter);
 
     int update(AdsOfflineGuideFilter filter);
+
+    int add(AdsOfflineGuideFilter filter);
 }

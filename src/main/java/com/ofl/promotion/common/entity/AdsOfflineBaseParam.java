@@ -14,4 +14,6 @@ public class AdsOfflineBaseParam {
     private String basePhone;
 
     private int loginType;
+
+    private Long organizeId;
 }

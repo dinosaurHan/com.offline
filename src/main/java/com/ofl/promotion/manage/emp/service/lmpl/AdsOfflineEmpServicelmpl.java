@@ -43,14 +43,19 @@ public class AdsOfflineEmpServicelmpl implements IAdsOfflineEmpService {
     }
 
     @Override
-    public ResultDto<Long> addEmp(AdsOfflineEmpFilter filter) {
+    public ResultDto<Void> addEmp(AdsOfflineEmpFilter filter) {
         try{
             if (StringUtils.isBlank(filter.getPhone()) || StringUtils.isBlank(filter.getEmpName())){
                 log.error("findOne param invalid:{}", JSON.toJSONString(filter));
                 return new ResultDto<>(Constant.Code.FAIL,"phone || name is empty");
             }
 
-            return new ResultDto<>(Constant.Code.SUCC,null,adsOfflineEmpMapper.add(filter));
+            if (adsOfflineEmpMapper.add(filter) < 0){
+                log.error("add emp fail param:{}",JSON.toJSONString(filter));
+                return new ResultDto<>(Constant.Code.FAIL,"add emp fail");
+            }
+
+            return new ResultDto<>(Constant.Code.SUCC,null);
         }catch (Exception e){
             log.error("addLowerLevel fail",e);
             return new ResultDto<>(Constant.Code.FAIL, Constant.ResultMsg.SYSTEM_ERROR);
@@ -87,8 +92,9 @@ public class AdsOfflineEmpServicelmpl implements IAdsOfflineEmpService {
     @Override
     public ResultDto<Object> login(AdsOfflineEmpFilter filter) {
         try{
-            if (StringUtils.isBlank(filter.getPhone()) || StringUtils.isBlank(filter.getIdentifyCode())){
-                log.error("phone || identifyCode is empty");
+            if (StringUtils.isBlank(filter.getPhone()) || filter.getPhone().length() != 11
+                    || StringUtils.isBlank(filter.getIdentifyCode())){
+                log.error("phone || identifyCode is invalid");
                 return new ResultDto<>(Constant.Code.FAIL,"phone || identifyCode is empty");
             }
 
@@ -96,7 +102,7 @@ public class AdsOfflineEmpServicelmpl implements IAdsOfflineEmpService {
 
 
             //获取token
-            String token = JwtUtils.createJWT(filter.getPhone(), 24 * 60 * 60 * 1000,filter.getLoginType());
+            String token = JwtUtils.createJWT(filter.getPhone(), 24 * 60 * 60 * 1000,Constant.LoginType.PC);
 
             return new ResultDto<>(Constant.Code.SUCC,Constant.ResultMsg.SUCC,token);
         } catch (Exception e){

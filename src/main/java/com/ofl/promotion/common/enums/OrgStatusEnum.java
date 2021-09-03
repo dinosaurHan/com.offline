@@ -8,8 +8,7 @@ public enum OrgStatusEnum {
 
 
     ONE_LEVEL(1,"启用"),
-    TWO_LEVEL(2,"停用"),
-    ;
+    TWO_LEVEL(2,"停用");
 
     private int status;
     private String statusName;

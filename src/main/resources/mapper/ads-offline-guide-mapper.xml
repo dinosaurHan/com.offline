@@ -43,6 +43,36 @@
 		guide_id, guide_name, phone, store_id, del_flag, insert_time, update_time,store_name
 	</sql>
 
+	<!-- 新增列处理 -->
+	<sql id="sql_add_columns">
+		<trim suffixOverrides=",">
+			<if test="guideName != null">guide_name,</if>
+			<if test="phone != null">phone,</if>
+			<if test="storeId != null">store_id,</if>
+			insert_time,
+			update_time,
+		</trim>
+	</sql>
+
+	<sql id="sql_add_properties">
+		<trim suffixOverrides=",">
+			<if test="guideName != null">#{guideName},</if>
+			<if test="phone != null">#{phone},</if>
+			<if test="storeId != null">#{storeId},</if>
+			unix_timestamp(),
+			unix_timestamp(),
+		</trim>
+	</sql>
+
+	<!-- 新增 -->
+	<insert id="add" parameterType="com.ofl.promotion.manage.guide.entity.filter.AdsOfflineGuideFilter">
+		insert into ofl_guide(
+		<include refid="sql_add_columns"/>
+		)values(
+		<include refid="sql_add_properties"/>
+		)
+	</insert>
+
 	<!-- 查询数量 -->
 	<select id="guideCount" resultType="Integer">
 		select count(1) from ofl_guide g
@@ -122,7 +152,14 @@
 	<select id="findOne" parameterType="com.ofl.promotion.manage.guide.entity.filter.AdsOfflineGuideFilter"
 			resultMap="BaseMapper">
 		select
-		<include refid="selectAllColumn"/>
+			g.guide_id,
+			g.guide_name,
+			g.phone,
+			g.store_id,
+			g.del_flag,
+			g.insert_time,
+			g.update_time,
+			s.store_name
 		from ofl_guide g
 		LEFT JOIN ofl_store s
 		ON(s.store_id = g.store_id)
@@ -133,6 +170,10 @@
 			<if test="guideId != null">
 				and g.guide_id = #{guideId}
 			</if>
+			<if test="storeId != null">
+				and g.store_id = #{storeId}
+			</if>
+			limit 1
 		</where>
 	</select>
 

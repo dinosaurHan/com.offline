@@ -39,8 +39,7 @@
 		</where>
 	</select>
 
-	<!-- 查询单个实体 -->
-	<select id="queryLead" resultMap="oflOrgEmpMapMapper"
+	<select id="findLead" resultMap="oflOrgEmpMapMapper"
 			parameterType="com.ofl.promotion.manage.emp.entity.filter.AdsOfflineEmpMapFilter" >
 		select
 			m.map_id,
@@ -55,6 +54,9 @@
 		<where>
 			<if test="phones != null">
 				e.phone in(${phones})
+			</if>
+			<if test="phone != null">
+				e.phone = #{phone}
 			</if>
 		</where>
 	</select>

@@ -33,12 +33,14 @@ public class Constant {
         String TOKEN_INVALID = "登录态失效，请重新登录";
         String LOGIN_FAIL = "登录失败";
         String PARAM_INVALID_FAIL = "参数无效";
+        String NO_PERMISSION_FAIL = "您没有操作权限,请联系管理员添加权限";
     }
 
     /**
      * 下级机构类型
      */
     public interface LowerLevel{
+        int ZERO = 0;//超级管理员所属层级
         int ONE = 1;//一级
         int TWO = 2;//二级
         int THREE = 3;//三级
@@ -73,7 +75,7 @@ public class Constant {
     */
     public interface LoginType{
         int APPLET = 1;//小程序
-        int PC = 1;//PC端
+        int PC = 2;//PC端
 
     }
 }

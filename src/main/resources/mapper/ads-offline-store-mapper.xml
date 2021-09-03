@@ -48,7 +48,7 @@
 
 	<!-- 新增 -->
 	<insert id="add" parameterType="com.ofl.promotion.manage.store.entity.filter.AdsOfflineStoreFilter"
-			keyProperty="organizeId" useGeneratedKeys="true">
+			keyProperty="storeId" useGeneratedKeys="true">
 		insert into ofl_store(
 		<include refid="sql_add_columns"/>
 		)values(

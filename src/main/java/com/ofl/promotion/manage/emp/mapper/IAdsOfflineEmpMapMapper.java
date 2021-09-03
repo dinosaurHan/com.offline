@@ -14,7 +14,7 @@ import java.util.List;
  */
 public interface IAdsOfflineEmpMapMapper {
 
-    List<AdsOfflineEmpMap> queryLead(AdsOfflineEmpMapFilter empMap);
+    List<AdsOfflineEmpMap> findLead(AdsOfflineEmpMapFilter empMap);
 
     List<AdsOfflineEmp> findEmpMapByOrgId(AdsOfflineEmpFilter empFilter);
 

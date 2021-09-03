@@ -2,6 +2,7 @@ package com.ofl.promotion.manage.emp.service;
 
 import com.ofl.promotion.common.entity.ResultDto;
 import com.ofl.promotion.manage.emp.entity.AdsOfflineEmp;
+import com.ofl.promotion.manage.emp.entity.AdsOfflineEmpMap;
 import com.ofl.promotion.manage.emp.entity.filter.AdsOfflineEmpFilter;
 import com.ofl.promotion.manage.emp.entity.filter.AdsOfflineEmpMapFilter;
 import com.ofl.promotion.manage.emp.entity.filter.AdsOfflineEmpMapFilter;
@@ -16,9 +17,11 @@ import java.util.List;
 public interface IAdsOfflineEmpMapService {
 
 
-    ResultDto<Void> queryLead(AdsOfflineEmpMapFilter filter);
+    ResultDto<Void> existLead(AdsOfflineEmpMapFilter filter);
 
     ResultDto<Void> addEmpMap(AdsOfflineEmpMapFilter empMapFilter);
 
     ResultDto<List<AdsOfflineEmp>> findOrgEmp(AdsOfflineEmpFilter empFilter);
+
+    ResultDto<List<AdsOfflineEmpMap>> findLead(AdsOfflineEmpMapFilter empFilter);
 }

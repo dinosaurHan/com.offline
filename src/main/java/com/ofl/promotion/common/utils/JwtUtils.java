@@ -18,8 +18,8 @@ public class JwtUtils {
 
     private static final String JWT_ID = UUID.randomUUID().toString();
 
-    private final static String PC_SECRECT= "PC_ONHGEBAJNE";
-    private final static String APPLET_SECRECT= "APPLET_ONHGEBAJNE";
+    private final static String PC_SECRECT= "AMOSINJDCN";
+    private final static String APPLET_SECRECT= "ONHGEBAJNE";
 
     private final static String PC_USER = "PC_OFFLINE_PROMOTION";
     private final static String APPLET_USER = "APPLET_OFFLINE_PROMOTION";

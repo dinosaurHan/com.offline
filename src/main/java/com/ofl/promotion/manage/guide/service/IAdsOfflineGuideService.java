@@ -32,4 +32,5 @@ public interface IAdsOfflineGuideService {
 
     ResultDto<Void> delGuide(AdsOfflineGuideFilter filter);
 
+    ResultDto<Void> addGuide(AdsOfflineGuideFilter offlineGuideFilter);
 }

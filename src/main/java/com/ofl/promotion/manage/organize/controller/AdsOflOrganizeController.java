@@ -1,6 +1,8 @@
 package com.ofl.promotion.manage.organize.controller;
 
 import com.ofl.promotion.aop.LoginAuthentication;
+import com.ofl.promotion.aop.OperateAuth;
+import com.ofl.promotion.common.constant.Constant;
 import com.ofl.promotion.common.entity.ResultDto;
 import com.ofl.promotion.manage.guide.entity.filter.AdsOfflineGuideFilter;
 import com.ofl.promotion.manage.organize.entity.AdsOfflineOrganize;
@@ -46,6 +48,8 @@ public class AdsOflOrganizeController {
      * 编辑机构
      */
     @RequestMapping("/upd")
+    @LoginAuthentication(loginType = Constant.LoginType.PC)
+    @OperateAuth
     public ResultDto<Void> updOrgnize(@RequestBody AdsOfflineOrganizeFilter filter){
         return adsOflOrganizeService.updOrgnize(filter);
     }

@@ -31,7 +31,7 @@ public class AdsOfflineEmpMapServicelmpl implements IAdsOfflineEmpMapService {
     private IAdsOfflineEmpMapMapper adsOfflineEmpMapMapper;
 
     @Override
-    public ResultDto<Void> queryLead(AdsOfflineEmpMapFilter filter) {
+    public ResultDto<Void> existLead(AdsOfflineEmpMapFilter filter) {
         try{
             if (CollectionUtils.isEmpty(filter.getLeadList()) || StringUtils.isBlank(filter.getAncestorIds())){
                 log.error("findLead param is invalid:{}",JSON.toJSONString(filter));
@@ -47,7 +47,7 @@ public class AdsOfflineEmpMapServicelmpl implements IAdsOfflineEmpMapService {
             String phones = StringUtils.strip(JSON.toJSONString(phoneList), "[]");
             AdsOfflineEmpMapFilter empMap = new AdsOfflineEmpMapFilter();
             empMap.setPhones(phones);
-            List<AdsOfflineEmpMap> offlineEmps = adsOfflineEmpMapMapper.queryLead(empMap);
+            List<AdsOfflineEmpMap> offlineEmps = adsOfflineEmpMapMapper.findLead(empMap);
             if (CollectionUtils.isEmpty(offlineEmps)){
                 return new ResultDto<>();
             }
@@ -100,6 +100,16 @@ public class AdsOfflineEmpMapServicelmpl implements IAdsOfflineEmpMapService {
             return new ResultDto<>(Constant.Code.FAIL, Constant.ResultMsg.SYSTEM_ERROR);
         }
 
+    }
+
+    @Override
+    public ResultDto<List<AdsOfflineEmpMap>> findLead(AdsOfflineEmpMapFilter empFilter) {
+        try{
+            return new ResultDto<>(Constant.Code.SUCC,Constant.ResultMsg.SUCC,adsOfflineEmpMapMapper.findLead(empFilter));
+        }catch (Exception e){
+            log.error("findOrgEmp fail",e);
+            return new ResultDto<>(Constant.Code.FAIL, Constant.ResultMsg.SYSTEM_ERROR);
+        }
     }
 
 }

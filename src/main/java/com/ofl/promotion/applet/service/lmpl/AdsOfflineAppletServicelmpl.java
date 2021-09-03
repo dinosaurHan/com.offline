@@ -13,6 +13,9 @@ import com.ofl.promotion.common.utils.JwtUtils;
 import com.ofl.promotion.common.utils.QrCodeUtils;
 import com.ofl.promotion.common.utils.WechatUtils;
 import com.ofl.promotion.manage.data.service.IAdsOfflineDataService;
+import com.ofl.promotion.manage.emp.entity.AdsOfflineEmp;
+import com.ofl.promotion.manage.emp.entity.filter.AdsOfflineEmpFilter;
+import com.ofl.promotion.manage.emp.service.IAdsOfflineEmpService;
 import com.ofl.promotion.manage.guide.entity.AdsOfflineGuide;
 import com.ofl.promotion.manage.guide.entity.AdsOfflineGuideAuth;
 import com.ofl.promotion.manage.guide.entity.filter.AdsOfflineGuideFilter;
@@ -38,6 +41,9 @@ public class AdsOfflineAppletServicelmpl implements IAdsOfflineAppletService {
 
     @Autowired
     private IAdsOfflineDataService adsOfflineDataService;
+
+    @Autowired
+    private IAdsOfflineEmpService adsOfflineEmpService;
 
     private final static String QR_CODE_URL = "";
 
@@ -65,6 +71,15 @@ public class AdsOfflineAppletServicelmpl implements IAdsOfflineAppletService {
             if (StringUtils.isBlank(purePhoneNumber)){
                 log.error("get user phone fail:{}",phoneResult);
                 return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.LOGIN_FAIL);
+            }
+
+            //校验是否是导购
+            AdsOfflineEmpFilter empFilter = new AdsOfflineEmpFilter();
+            empFilter.setPhone(purePhoneNumber);
+            ResultDto<AdsOfflineEmp> empResultDto = adsOfflineEmpService.findOne(empFilter);
+            if (empResultDto.getRet() != Constant.Code.SUCC || empResultDto.getData() == null){
+                log.error("find guide fail ret:{}|msg:{}",empResultDto.getRet(),empResultDto.getMsg());
+                return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.NO_PERMISSION_FAIL);
             }
 
             //jwt生成token  失效单位：毫秒
