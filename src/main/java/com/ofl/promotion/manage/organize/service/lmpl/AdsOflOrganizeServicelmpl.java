@@ -29,12 +29,15 @@ import com.ofl.promotion.manage.store.service.IAdsOfflineStoreService;
 import com.ofl.promotion.manage.organize.service.IAdsOflOrganizeService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -64,6 +67,13 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
     private IAdsOfflineGuideService adsOfflineGuideService;
 
     private static final String COMMA = ",";
+
+    //excel标题
+    private static final String[] GUIDE_TITLE = {"一级","二级","三级","四级","门店名称","导购名称","电话号码"};
+
+    private static final String ORGANIZE_FILE_NAME = "组织架构表";
+
+    private static final String EXCEL_SUFFIX = ".xls";
 
     @Override
     @Transactional
@@ -780,5 +790,86 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
             log.error("delOrg fail",e);
             return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SYSTEM_ERROR);
         }
+    }
+
+    @Override
+    public ResultDto<Void> export(AdsOfflineOrganizeFilter filter, HttpServletResponse response) {
+        try{
+            if (filter.getOrganizeId() == null){
+                log.error("organizeId is Empty param:{}",JSON.toJSONString(filter));
+                return new ResultDto<>(Constant.Code.FAIL," organizeId is Empty");
+            }
+
+            //判断该机构是否存在
+            AdsOfflineOrganizeFilter organizeFilter = new AdsOfflineOrganizeFilter();
+            organizeFilter.setOrganizeId(filter.getOrganizeId());
+            AdsOfflineOrganize offlineOrganize = adsOfflineOrganizeMapper.findOne(organizeFilter);
+            if (offlineOrganize == null || StringUtils.isBlank(offlineOrganize.getAncestorIds())) {
+                log.error("org export fail param:{}",JSON.toJSONString(organizeFilter));
+                return new ResultDto<>(Constant.Code.FAIL,"org export fail");
+            }
+
+            List<AdsOfflineOrganizeExcel> excels = Lists.newArrayList();
+            //查询上级信息
+            AdsOfflineOrganizeFilter organize = new AdsOfflineOrganizeFilter();
+            //剔除超级管理员层级
+            String parentIds = offlineOrganize.getAncestorIds() + COMMA +offlineOrganize.getOrganizeId();
+            String subAncestorIds = parentIds.substring(4);
+            organize.setParentIds(subAncestorIds);
+            List<AdsOfflineOrganize> organizeList = adsOfflineOrganizeMapper.findHigherLevel(organize);
+            if (!CollectionUtils.isEmpty(organizeList)){
+                //获取数据
+                excels = addOrgHightLevelMsg(organizeList);
+            }
+
+            //excel文件名
+            String fileName = ORGANIZE_FILE_NAME + System.currentTimeMillis() + EXCEL_SUFFIX;
+
+            //创建HSSFWorkbook
+            Object[] excelData = excels.toArray();
+            HSSFWorkbook wb = ExcelUtils.export(ORGANIZE_FILE_NAME, GUIDE_TITLE, excelData);
+
+            //响应到客户端
+            ExcelUtils.setResponseHeader(response, fileName);
+            OutputStream os = response.getOutputStream();
+            wb.write(os);
+            os.flush();
+            os.close();
+
+        }catch (Exception e){
+            log.error("export fail",e);
+        }
+        return null;
+    }
+
+    private List<AdsOfflineOrganizeExcel> addOrgHightLevelMsg(List<AdsOfflineOrganize> organizeList) {
+        int level = 1;
+        List<AdsOfflineOrganizeExcel> excels = Lists.newArrayList();
+        AdsOfflineOrganizeExcel organizeExcel = new AdsOfflineOrganizeExcel();
+        for (AdsOfflineOrganize adsOfflineOrganize : organizeList) {
+            if (StringUtils.isBlank(adsOfflineOrganize.getOrganizeName())){
+                continue;
+            }
+
+            if (level == Constant.LowerLevel.ONE){
+                organizeExcel.setOneLevel(adsOfflineOrganize.getOrganizeName());
+            }
+
+            if (level == Constant.LowerLevel.TWO){
+                organizeExcel.setTwoLevel(adsOfflineOrganize.getOrganizeName());
+            }
+
+            if (level == Constant.LowerLevel.THREE){
+                organizeExcel.setThreeLevel(adsOfflineOrganize.getOrganizeName());
+            }
+
+            if (level == Constant.LowerLevel.FOUR){
+                organizeExcel.setFourLevel(adsOfflineOrganize.getOrganizeName());
+            }
+
+            level++;
+        }
+        excels.add(organizeExcel);
+        return excels;
     }
 }

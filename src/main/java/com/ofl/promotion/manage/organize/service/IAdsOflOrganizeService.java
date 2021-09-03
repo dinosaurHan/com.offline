@@ -7,6 +7,7 @@ import com.ofl.promotion.manage.organize.entity.dto.AdsOfflineOrganizeDto;
 import com.ofl.promotion.manage.organize.entity.filter.AdsOfflineOrganizeFilter;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -39,4 +40,6 @@ public interface IAdsOflOrganizeService {
     ResultDto<Void> batchUpdOrgStatus(AdsOfflineOrganizeFilter filter);
 
     ResultDto<Void> delOrg(AdsOfflineOrganizeFilter filter);
+
+    ResultDto<Void> export(AdsOfflineOrganizeFilter filter, HttpServletResponse response);
 }

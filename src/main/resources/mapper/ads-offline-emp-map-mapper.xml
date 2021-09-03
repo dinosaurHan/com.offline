@@ -95,12 +95,12 @@
 	<update id="updateOflEmp" parameterType="com.ofl.promotion.manage.emp.entity.filter.AdsOfflineEmpMapFilter">
 		update ofl_org_emp_map
 			<set>
-					<if test = "delFlag != null ">
-						del_flag = #{delFlag},
-					</if>
-					<if test = "updateTime != null ">
-						update_time = #{updateTime}
-					</if>
+				<if test="delFlag != null ">
+					del_flag = #{delFlag},
+				</if>
+				<if test="updateTime != null ">
+					update_time = #{updateTime}
+				</if>
 			</set>
 		where emp_id = #{empId}
 	</update>

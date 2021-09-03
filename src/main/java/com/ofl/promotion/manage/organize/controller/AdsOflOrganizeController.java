@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -97,5 +98,10 @@ public class AdsOflOrganizeController {
     @RequestMapping("/del")
     public ResultDto<Void> delGuide(@RequestBody AdsOfflineOrganizeFilter filter) {
         return adsOflOrganizeService.delOrg(filter);
+    }
+
+    @RequestMapping("/export")
+    public ResultDto<Void> export(@RequestBody AdsOfflineOrganizeFilter filter, HttpServletResponse response) {
+        return adsOflOrganizeService.export(filter,response);
     }
 }

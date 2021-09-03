@@ -13,4 +13,5 @@ public interface IAdsOfflineDataMapper {
 
     List<AdsOfflineDouyinData> findAll(AdsOfflineDataFilter filter);
 
+    List<AdsOfflineDouyinData> count(AdsOfflineDataFilter filter);
 }

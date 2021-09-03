@@ -51,6 +51,8 @@ public class AdsOfflineGuideServicelmpl implements IAdsOfflineGuideService {
 
     private static final String GUIDE_FILE_NAME = "导购表";
 
+    private static final String EXCEL_SUFFIX = ".xls";
+
     @Override
     public ResultDto<Integer> guideCount(AdsOfflineGuideFilter filter) {
         try{
@@ -79,14 +81,14 @@ public class AdsOfflineGuideServicelmpl implements IAdsOfflineGuideService {
             List<AdsOfflineGuideVo> guideVoList = getAdsOfflineGuideResult(pageInfoResultDto);
 
             //excel文件名
-             String fileName = GUIDE_FILE_NAME+System.currentTimeMillis()+".xls";
+            String fileName = GUIDE_FILE_NAME+System.currentTimeMillis() + EXCEL_SUFFIX;
 
             Object[] objects = guideVoList.toArray();
             //创建HSSFWorkbook
             HSSFWorkbook wb = ExcelUtils.export(GUIDE_FILE_NAME, GUIDE_TITLE, objects);
 
             //响应到客户端
-            setResponseHeader(response, fileName);
+            ExcelUtils.setResponseHeader(response, fileName);
             OutputStream os = response.getOutputStream();
             wb.write(os);
             os.flush();
@@ -275,42 +277,24 @@ public class AdsOfflineGuideServicelmpl implements IAdsOfflineGuideService {
                     continue;
                 }
 
-                if (level == 1){
+                if (level == Constant.LowerLevel.ONE){
                     adsOfflineGuideVo.setOneLevel(offlineOrganize.getOrganizeName());
                 }
 
-                if (level == 2){
+                if (level == Constant.LowerLevel.TWO){
                     adsOfflineGuideVo.setTwoLevel(offlineOrganize.getOrganizeName());
                 }
 
-                if (level == 3){
+                if (level == Constant.LowerLevel.THREE){
                     adsOfflineGuideVo.setThreeLevel(offlineOrganize.getOrganizeName());
                 }
 
-                if (level == 4){
+                if (level == Constant.LowerLevel.FOUR){
                     adsOfflineGuideVo.setFourLevel(offlineOrganize.getOrganizeName());
                 }
 
                 level++;
             }
-        }
-    }
-
-    //发送响应流方法
-    public void setResponseHeader(HttpServletResponse response, String fileName) {
-        try {
-            try {
-                fileName = new String(fileName.getBytes(),"ISO8859-1");
-            } catch (UnsupportedEncodingException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            response.setContentType("application/octet-stream;charset=ISO8859-1");
-            response.setHeader("Content-Disposition", "attachment;filename="+ fileName);
-            response.addHeader("Pargam", "no-cache");
-            response.addHeader("Cache-Control", "no-cache");
-        } catch (Exception ex) {
-            ex.printStackTrace();
         }
     }
 }

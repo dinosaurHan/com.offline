@@ -48,11 +48,11 @@ public class AdsOfflineDouyinData implements Serializable {
     /**
      * 拉新数
      */
-    private Long newCount;
+    private Long pullNewCount;
     /**
      * 无效数量
      */
-    private Long invCount;
+    private Long invPullNewCount;
     /**
      * 导购名称
      */
@@ -61,4 +61,14 @@ public class AdsOfflineDouyinData implements Serializable {
      * 无效数量
      */
     private String storeName;
+
+    /**
+     * 导购名称
+     */
+    private String guideName;
+
+    /**
+     * 时间
+     */
+    private String date;
 }

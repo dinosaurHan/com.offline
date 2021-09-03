@@ -12,15 +12,66 @@
 		<result property="fourLevel" column="four_level" />
 		<result property="guideId" column="guide_id" />
 		<result property="guidePhone" column="guide_phone" />
-		<result property="newCount" column="new_count" />
-		<result property="invCount" column="inv_count" />
+		<result property="pullNewCount" column="new_count" />
+		<result property="invPullNewCount" column="inv_count" />
+		<result property="date" column="dt" />
 	</resultMap>
 
+	<resultMap id="CountMapper" type="com.ofl.promotion.manage.data.entity.AdsOfflineDataCount">
+		<result property="guideCount" column="guide_count" />
+		<result property="pullNewCount" column="new_count" />
+		<result property="invPullNewCount" column="inv_count" />
+		<result property="date" column="dt" />
+	</resultMap>
 
 	<sql id="selectAllColumns">
 		id, dy_id, first_level, second_level, third_level, four_level, guide_id, guide_phone, new_count,
 		inv_count, store_name, guide_name
 	</sql>
+
+	<!-- 新增列处理 -->
+	<sql id="sql_add_columns">
+		<trim suffixOverrides=",">
+			<if test="dyId != null">dy_id,</if>
+			<if test="firstLevel != null">first_level,</if>
+			<if test="secondLevel != null">second_level,</if>
+			<if test="thirdLevel != null">third_level,</if>
+			<if test="fourLevel != null">four_level,</if>
+			<if test="guideId != null">guide_id,</if>
+			<if test="guidePhone != null">guide_phone,</if>
+			<if test="newCount != null">new_count,</if>
+			<if test="invCount != null">inv_count,</if>
+			<if test="dt != null">dt,</if>
+			insert_time,
+			update_time,
+		</trim>
+	</sql>
+
+	<sql id="sql_add_properties">
+		<trim suffixOverrides=",">
+			<if test="dyId != null">#{dyId},</if>
+			<if test="firstLevel != null">#{firstLevel},</if>
+			<if test="secondLevel != null">#{secondLevel},</if>
+			<if test="thirdLevel != null">#{thirdLevel},</if>
+			<if test="fourLevel != null">#{fourLevel},</if>
+			<if test="guideId != null">#{guideId},</if>
+			<if test="guidePhone != null">#{guidePhone},</if>
+			<if test="newCount != null">#{newCount},</if>
+			<if test="invCount != null">#{invCount},</if>
+			<if test="dt != null">#{dt},</if>
+			unix_timestamp(),
+			unix_timestamp(),
+		</trim>
+	</sql>
+
+	<!-- 新增 -->
+	<insert id="add" parameterType="com.ofl.promotion.manage.guide.entity.filter.AdsOfflineGuideFilter">
+		insert into ofl_douyin(
+		<include refid="sql_add_columns"/>
+		)values(
+		<include refid="sql_add_properties"/>
+		)
+	</insert>
 
 	<!-- 查询 -->
 	<select id="findAll" parameterType="com.ofl.promotion.manage.data.entity.filter.AdsOfflineDataFilter"
@@ -39,15 +90,50 @@
 				and o.ancestor_ids like concat(#{ancestorIds},'%')
 			</if>
 			<if test="storeName != null and storeName != ''">
-				and store_name = #{storeName}
+				and d.store_name = #{storeName}
 			</if>
 			<if test="guideName != null and guideName != ''">
-				and guide_name = #{guideName}
+				and d.guide_name = #{guideName}
 			</if>
 			<if test="guideId != null">
-				and guide_id = #{guideId}
+				and d.guide_id = #{guideId}
 			</if>
 		</where>
 	</select>
+
+	<!-- 统计 -->
+	<select id="count" parameterType="com.ofl.promotion.manage.data.entity.filter.AdsOfflineDataFilter"
+			resultMap="CountMapper" >
+		SELECT sum(d.new_count) new_count,
+		sum(d.inv_count) inv_count,
+		d.dt dt,
+		count(d.guide_id) guide_count
+		from ofl_douyin d
+		LEFT JOIN ofl_guide g
+		on(d.guide_id = g.guide_id)
+		LEFT JOIN ofl_store s
+		ON(g.store_id = s.store_id)
+		LEFT JOIN  ofl_org o
+		ON(s.org_id = o.org_id)
+		<where>
+			<if test="ancestorIds != null and ancestorIds != ''">
+				and o.ancestor_ids like concat(#{ancestorIds},'%')
+			</if>
+			<if test="storeName != null and storeName != ''">
+				and d.store_name = #{storeName}
+			</if>
+			<if test="guideName != null and guideName != ''">
+				and d.guide_name = #{guideName}
+			</if>
+			<if test="guideId != null">
+				and d.guide_id = #{guideId}
+			</if>
+			group by d.dt
+		</where>
+	</select>
+
+<!--	<insert id="add" parameterType="com.ofl.promotion.manage.data.entity.filter.AdsOfflineDataFilter">-->
+<!--		-->
+<!--	</insert>-->
 
 </mapper>
