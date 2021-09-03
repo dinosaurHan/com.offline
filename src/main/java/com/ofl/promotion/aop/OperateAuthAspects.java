@@ -69,7 +69,7 @@ public class OperateAuthAspects {
                 return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.NO_PERMISSION_FAIL);
             }
 
-            //查看操作的机构上级
+            //查看操作的机构是否存在
             AdsOfflineOrganizeFilter organizeFilter = new AdsOfflineOrganizeFilter();
             organizeFilter.setOrganizeId(param.getOrganizeId());
             ResultDto<AdsOfflineOrganize> organizeResultDto = adsOflOrganizeService.queryOrg(organizeFilter);
@@ -78,6 +78,7 @@ public class OperateAuthAspects {
                 return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.NO_PERMISSION_FAIL);
             }
 
+            //获取机构数据
             AdsOfflineOrganize offlineOrganize = organizeResultDto.getData();
             if (StringUtils.isBlank(offlineOrganize.getAncestorIds())){
                 return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.NO_PERMISSION_FAIL);
@@ -88,26 +89,15 @@ public class OperateAuthAspects {
                 return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.NO_PERMISSION_FAIL);
             }
             List<String> orgList = Arrays.asList(splitOrgIds);
-            if (!orgList.contains(leadResult.getData().get(0).getOrganizeId())){
+            Long organizeId = leadResult.getData().get(0).getOrganizeId();
+            if (!orgList.contains(String.valueOf(organizeId))){
                 return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.NO_PERMISSION_FAIL);
             }
 
-        } catch (SignatureException | MalformedJwtException e){
+        } catch (Exception e) {
             //token illegality
-            return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.LOGIN_FAIL);
-        } catch (ExpiredJwtException e){
-            log.error("Verify Token Exception:",e);
-            Claims claims = e.getClaims();
-            System.out.println(claims.getId());
-            Date expiration = claims.getExpiration();
-            //当前时间大于设置的过期时间，失效
-            if (new Date().getTime() > expiration.getTime()){
-                return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.TOKEN_INVALID);
-            }
-            //获取token中用户手机号
-            param.setBasePhone(claims.getSubject());
+            return new ResultDto<>(Constant.Code.FAIL, Constant.ResultMsg.NO_PERMISSION_FAIL);
         }
-
         //4.process on
         return pjp.proceed();
     }
