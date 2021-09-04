@@ -31,7 +31,7 @@ public class AdsOfflineEmpController {
      * 获取验证码
      */
     @RequestMapping("/getCode")
-    public ResultDto<Object> getIdentifyingCode(@RequestBody AdsOfflineEmpFilter filter){
+    public ResultDto<Void> getIdentifyingCode(@RequestBody AdsOfflineEmpFilter filter){
         return adsOfflineEmpService.getIdentifyingCode(filter);
     }
 }

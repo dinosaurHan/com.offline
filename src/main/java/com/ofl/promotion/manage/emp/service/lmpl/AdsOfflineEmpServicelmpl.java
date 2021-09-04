@@ -112,7 +112,7 @@ public class AdsOfflineEmpServicelmpl implements IAdsOfflineEmpService {
     }
 
     @Override
-    public ResultDto<Object> getIdentifyingCode(AdsOfflineEmpFilter filter) {
+    public ResultDto<Void> getIdentifyingCode(AdsOfflineEmpFilter filter) {
         try{
             if (StringUtils.isBlank(filter.getPhone()) || filter.getPhone().length() != 11){
                 log.error("phone:{} is invalid",filter.getPhone());
@@ -124,7 +124,7 @@ public class AdsOfflineEmpServicelmpl implements IAdsOfflineEmpService {
                 log.error("sendSMS fail ret:{},msg:{}",smsResult.getRet(),smsResult.getMsg());
                 return new ResultDto<>(smsResult.getRet(),smsResult.getMsg());
             }
-            return new ResultDto<>(Constant.Code.SUCC,Constant.ResultMsg.SUCC,smsResult.getData());
+            return new ResultDto<>(Constant.Code.SUCC,Constant.ResultMsg.SUCC);
         } catch (Exception e){
             log.error("emp getIdentifyingCode fail",e);
             return new ResultDto<>(Constant.Code.FAIL, Constant.ResultMsg.SYSTEM_ERROR);

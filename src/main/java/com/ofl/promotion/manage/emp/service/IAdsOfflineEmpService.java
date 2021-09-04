@@ -23,5 +23,5 @@ public interface IAdsOfflineEmpService {
 
     ResultDto<Object> login(AdsOfflineEmpFilter filter);
 
-    ResultDto<Object> getIdentifyingCode(AdsOfflineEmpFilter filter);
+    ResultDto<Void> getIdentifyingCode(AdsOfflineEmpFilter filter);
 }
