@@ -21,5 +21,6 @@ public class AdsOfflineApplet extends AdsOfflineBaseParam implements Serializabl
 
     private List<Integer> openBusiness;
 
+    private String name;
 
 }

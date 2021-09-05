@@ -87,41 +87,41 @@ public class AdsOfflineStoreServicelmpl implements IAdsOfflineStoreService {
     }
 
     @Override
-    public void export(AdsOfflineStoreFilter filter,HttpServletResponse response) {
+    public ResultDto<Void> export(AdsOfflineStoreFilter filter,HttpServletResponse response) {
         try{
             ResultDto<PageInfo<AdsOfflineStoreVo>> pageInfoResultDto = queryStore(filter);
             if (pageInfoResultDto.getRet() != Constant.Code.SUCC){
-                log.error("export query guide fail ret:{}|msg:{}",pageInfoResultDto.getRet(),pageInfoResultDto.getMsg());
-                return;
+                log.error("export query store fail ret:{}|msg:{}",pageInfoResultDto.getRet(),pageInfoResultDto.getMsg());
+                return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SYSTEM_ERROR);
             }
 
             //获取数据
             List<AdsOfflineStoreVo> storeVoList = getAdsOfflineStoreResult(pageInfoResultDto);
 
             //excel文件名
-            String fileName = STORE_FILE_NAME+System.currentTimeMillis()+".xls";
+            String fileName = STORE_FILE_NAME + System.currentTimeMillis()+".xls";
 
             Object[] objects = storeVoList.toArray();
             //创建HSSFWorkbook
             HSSFWorkbook wb = ExcelUtils.export(STORE_FILE_NAME, STORE_TITLE, objects);
 
             //响应到客户端
-            setResponseHeader(response, fileName);
+            ExcelUtils.setResponseHeader(response, fileName);
             OutputStream os = response.getOutputStream();
             wb.write(os);
             os.flush();
             os.close();
-            return;
+            return null;
         }catch (Exception e){
             log.error("guide export",e);
-            return ;
+            return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SYSTEM_ERROR);
         }
     }
 
     @Override
     public ResultDto<PageInfo<AdsOfflineStoreVo>> queryStore(AdsOfflineStoreFilter filter) {
         try{
-            if (filter.getOrganizeId() == null || filter.getPage() == 0 || filter.getPageSize() == 0){
+            if (filter.getOrganizeId() == null){
                 log.error("organizeId is empty");
                 return new ResultDto<>(Constant.Code.FAIL,"organizeId is empty");
             }
@@ -283,21 +283,4 @@ public class AdsOfflineStoreServicelmpl implements IAdsOfflineStoreService {
         return storeVoList;
     }
 
-    //发送响应流方法
-    public void setResponseHeader(HttpServletResponse response, String fileName) {
-        try {
-            try {
-                fileName = new String(fileName.getBytes(),"ISO8859-1");
-            } catch (UnsupportedEncodingException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            response.setContentType("application/octet-stream;charset=ISO8859-1");
-            response.setHeader("Content-Disposition", "attachment;filename="+ fileName);
-            response.addHeader("Pargam", "no-cache");
-            response.addHeader("Cache-Control", "no-cache");
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
 }

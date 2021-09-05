@@ -23,7 +23,7 @@ public interface IAdsOfflineStoreService {
 
     ResultDto<Integer> storeCount(AdsOfflineStoreFilter filter);
 
-    void export(AdsOfflineStoreFilter filter, HttpServletResponse response);
+    ResultDto<Void> export(AdsOfflineStoreFilter filter, HttpServletResponse response);
 
     ResultDto<PageInfo<AdsOfflineStoreVo>> queryStore(AdsOfflineStoreFilter filter);
 

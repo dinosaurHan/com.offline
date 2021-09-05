@@ -20,7 +20,7 @@ public interface IAdsOfflineGuideService {
 
     ResultDto<Integer> guideCount(AdsOfflineGuideFilter filter);
 
-    void export(AdsOfflineGuideFilter filter, HttpServletResponse response);
+    ResultDto<Void>  export(AdsOfflineGuideFilter filter, HttpServletResponse response);
 
     ResultDto<PageInfo<AdsOfflineGuideVo>> queryGuide(AdsOfflineGuideFilter filter);
 

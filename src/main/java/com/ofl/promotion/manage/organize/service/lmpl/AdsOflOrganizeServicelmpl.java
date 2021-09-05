@@ -69,7 +69,7 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
     private static final String COMMA = ",";
 
     //excel标题
-    private static final String[] GUIDE_TITLE = {"一级","二级","三级","四级","门店名称","导购名称","电话号码"};
+    private static final String[] GUIDE_TITLE = {"一级","二级（非必填）","三级（非必填）","四级（非必填）","门店","导购姓名","电话"};
 
     private static final String ORGANIZE_FILE_NAME = "组织架构表";
 
@@ -267,10 +267,13 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
             }
 
             //获取父级信息
-            organizeFilter.setOrganizeId(offlineOrganize.getParentId());
-            AdsOfflineOrganize parentOrganize = adsOfflineOrganizeMapper.findOne(organizeFilter);
-            if (parentOrganize == null){
-                return new ResultDto<>(Constant.Code.FAIL,"组织架构层级错误");
+            AdsOfflineOrganize parentOrganize = null;
+            if (offlineOrganize.getParentId() != 0){
+                organizeFilter.setOrganizeId(offlineOrganize.getParentId());
+                parentOrganize = adsOfflineOrganizeMapper.findOne(organizeFilter);
+                if (parentOrganize == null){
+                    return new ResultDto<>(Constant.Code.FAIL,"组织架构层级错误");
+                }
             }
 
             //获取excel数据
@@ -291,8 +294,10 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
         int rowsNum = 1;
         for (AdsOfflineOrganizeExcel organizeExcel : excelList) {
             //校验组织名称
-            ResultDto<AdsOfflineOrganize> excelLevelOrgName = checkOrgName(offlineOrganize, parentOrganize, organizeExcel);
-            if (excelLevelOrgName.getRet() != Constant.Code.SUCC) return excelLevelOrgName;
+            if (parentOrganize != null){
+                ResultDto<AdsOfflineOrganize> excelLevelOrgName = checkOrgName(offlineOrganize, parentOrganize, organizeExcel);
+                if (excelLevelOrgName.getRet() != Constant.Code.SUCC) return excelLevelOrgName;
+            }
 
             //创建下级组织机构
             Integer organizeLevel = offlineOrganize.getOrganizeLevel() + 1;
@@ -514,10 +519,26 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
             //修改人员信息
             for (AdsOfflineEmpFilter adsOfflineEmpFilter : filter.getLeadList()) {
 
-                ResultDto<Void> updateEmpResult = adsOfflineEmpService.updateEmp(adsOfflineEmpFilter);
-                if (updateEmpResult .getRet() != Constant.Code.SUCC){
-                    log.error("updOrgnize updateEmp fail:{}",JSON.toJSONString(adsOfflineEmpFilter));
+                if (adsOfflineEmpFilter.getEmpId() != null){
+                    ResultDto<Void> updateEmpResult = adsOfflineEmpService.updateEmp(adsOfflineEmpFilter);
+                    if (updateEmpResult .getRet() != Constant.Code.SUCC){
+                        log.error("updOrgnize updateEmp fail:{}",JSON.toJSONString(adsOfflineEmpFilter));
+                    }
+                }else {
+                    ResultDto<Void> updateEmpResult = adsOfflineEmpService.addEmp(adsOfflineEmpFilter);
+                    if (updateEmpResult .getRet() != Constant.Code.SUCC){
+                        log.error("updOrgnize updateEmp fail:{}",JSON.toJSONString(adsOfflineEmpFilter));
+                    }
+
+                    AdsOfflineEmpMapFilter empMapFilter = new AdsOfflineEmpMapFilter();
+                    empMapFilter.setEmpId(adsOfflineEmpFilter.getEmpId());
+                    empMapFilter.setOrganizeId(filter.getOrganizeId());
+                    ResultDto<Void> addEmpMap = adsOfflineEmpMapService.addEmpMap(empMapFilter);
+                    if (addEmpMap .getRet() != Constant.Code.SUCC){
+                        log.error("updOrgnize addEmpMap fail:{}",JSON.toJSONString(adsOfflineEmpFilter));
+                    }
                 }
+
             }
             return new ResultDto<>(Constant.Code.SUCC,Constant.ResultMsg.SUCC);
         }catch (Exception e){
@@ -542,7 +563,7 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
             }
 
             AdsOfflineEmpFilter empFilter = new AdsOfflineEmpFilter();
-            empFilter.setOrganizeId(empFilter.getOrganizeId());
+            empFilter.setOrganizeId(filter.getOrganizeId());
             ResultDto<List<AdsOfflineEmp>> offlineEmpResult = adsOfflineEmpMapService.findOrgEmp(empFilter);
             if (offlineEmpResult.getRet() != Constant.Code.SUCC){
                 log.error("emp query fail ret:{}|msg:{}",offlineEmpResult.getRet(),offlineEmpResult.getMsg());
@@ -615,7 +636,7 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
 
             //设置分页
             PageHelper.startPage(filter.getPage(),filter.getPageSize());
-            filter.setAncestorIds(offlineOrganize.getAncestorIds()+COMMA+filter.getOrganizeId());
+            filter.setParentId(filter.getOrganizeId());
             List<AdsOfflineOrganize> offlineOrganizeList = adsOfflineOrganizeMapper.findAll(filter);
 
             return new ResultDto<>(Constant.Code.SUCC,Constant.ResultMsg.SUCC,new PageInfo<>(offlineOrganizeList));
@@ -685,6 +706,7 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
 
         //查询开通导购数量
         guideFilter.setStatus(Constant.Status.OPEN);
+        guideFilter.setDelFlag(Constant.DelFlag.VALID);
         ResultDto<Integer> guideOpneCountResult = adsOfflineGuideService.guideCount(guideFilter);
         if (guideOpneCountResult.getRet() != Constant.Code.SUCC){
             log.error("guide totalCount fail:{}", JSON.toJSONString(guideFilter));
@@ -772,7 +794,7 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
     public ResultDto<Void> delOrg(AdsOfflineOrganizeFilter filter) {
         try{
             if (CollectionUtils.isEmpty(filter.getOrganizeIdList())){
-                log.error("organizeIdList || status is empty:{}",JSON.toJSONString(filter));
+                log.error("organizeIdList is empty:{}",JSON.toJSONString(filter));
                 return new ResultDto<>(Constant.Code.FAIL,"");
             }
 
@@ -814,12 +836,15 @@ public class AdsOflOrganizeServicelmpl implements IAdsOflOrganizeService {
             AdsOfflineOrganizeFilter organize = new AdsOfflineOrganizeFilter();
             //剔除超级管理员层级
             String parentIds = offlineOrganize.getAncestorIds() + COMMA +offlineOrganize.getOrganizeId();
-            String subAncestorIds = parentIds.substring(4);
-            organize.setParentIds(subAncestorIds);
-            List<AdsOfflineOrganize> organizeList = adsOfflineOrganizeMapper.findHigherLevel(organize);
-            if (!CollectionUtils.isEmpty(organizeList)){
-                //获取数据
-                excels = addOrgHightLevelMsg(organizeList);
+            if (StringUtils.isNotBlank(parentIds) && parentIds.length() > 4) {
+
+                String subAncestorIds = parentIds.substring(4);
+                organize.setParentIds(subAncestorIds);
+                List<AdsOfflineOrganize> organizeList = adsOfflineOrganizeMapper.findHigherLevel(organize);
+                if (!CollectionUtils.isEmpty(organizeList)){
+                    //获取数据
+                    excels = addOrgHightLevelMsg(organizeList);
+                }
             }
 
             //excel文件名

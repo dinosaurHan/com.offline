@@ -1,6 +1,7 @@
 package com.ofl.promotion.manage.emp.controller;
 
 import com.ofl.promotion.common.entity.ResultDto;
+import com.ofl.promotion.manage.emp.entity.AdsOfflineEmpMap;
 import com.ofl.promotion.manage.emp.entity.filter.AdsOfflineEmpFilter;
 import com.ofl.promotion.manage.emp.service.IAdsOfflineEmpService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,5 +34,10 @@ public class AdsOfflineEmpController {
     @RequestMapping("/getCode")
     public ResultDto<Void> getIdentifyingCode(@RequestBody AdsOfflineEmpFilter filter){
         return adsOfflineEmpService.getIdentifyingCode(filter);
+    }
+
+    @RequestMapping("/getUserInfo")
+    public ResultDto<AdsOfflineEmpMap> getUserInfo(@RequestBody AdsOfflineEmpFilter filter){
+        return adsOfflineEmpService.getUserInfo(filter);
     }
 }

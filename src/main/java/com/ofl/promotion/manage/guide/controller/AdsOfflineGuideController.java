@@ -1,11 +1,13 @@
 package com.ofl.promotion.manage.guide.controller;
 
 import com.github.pagehelper.PageInfo;
+import com.ofl.promotion.common.constant.Constant;
 import com.ofl.promotion.common.entity.ResultDto;
 import com.ofl.promotion.manage.guide.entity.AdsOfflineGuide;
 import com.ofl.promotion.manage.guide.entity.AdsOfflineGuideVo;
 import com.ofl.promotion.manage.guide.entity.filter.AdsOfflineGuideFilter;
 import com.ofl.promotion.manage.guide.service.IAdsOfflineGuideService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -20,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 @RestController
 @RequestMapping("/manage/guide")
+@Slf4j
 public class AdsOfflineGuideController {
 
     @Autowired
@@ -29,8 +32,8 @@ public class AdsOfflineGuideController {
      * 导购导出
      */
     @RequestMapping("/export")
-    public void export(@RequestBody AdsOfflineGuideFilter filter, HttpServletResponse response){
-        adsOfflineGuideService.export(filter,response);
+    public ResultDto<Void> export(@RequestBody AdsOfflineGuideFilter filter, HttpServletResponse response){
+        return adsOfflineGuideService.export(filter,response);
     }
 
     /**
@@ -51,6 +54,11 @@ public class AdsOfflineGuideController {
 
     @RequestMapping("/del")
     public ResultDto<Void> delGuide(@RequestBody AdsOfflineGuideFilter filter){
-        return adsOfflineGuideService.delGuide(filter);
+        try{
+            return adsOfflineGuideService.delGuide(filter);
+        }catch (Exception e){
+            log.error("delGuide fail",e);
+            return new ResultDto<>(Constant.Code.FAIL,e.getMessage());
+        }
     }
 }

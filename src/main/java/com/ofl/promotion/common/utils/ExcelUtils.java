@@ -59,7 +59,7 @@ public class ExcelUtils {
         Sheet sheet = wb.getSheetAt(0);
 
         //获取表头列
-        Row row = sheet.getRow(0);
+        Row row = sheet.getRow(1);
         //表头字段放入titleList中
         List<String> titleList = new ArrayList<String>();
         for (int i = 0; i < row.getLastCellNum(); i++) {
@@ -93,6 +93,10 @@ public class ExcelUtils {
         for (int r = 1; r <= sheet.getLastRowNum(); r++) {
             T tIns = t.newInstance();
             boolean nullrow = false;
+
+            if (r==1){
+                continue;
+            }
 
             for (Field field : fields) {
 
@@ -331,7 +335,7 @@ public class ExcelUtils {
     public static void setResponseHeader(HttpServletResponse response, String fileName) {
         try {
             try {
-                fileName = new String(fileName.getBytes(),"ISO8859-1");
+                fileName = new String(fileName.getBytes(),"UTF-8");
             } catch (UnsupportedEncodingException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

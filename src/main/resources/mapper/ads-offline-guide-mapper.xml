@@ -87,6 +87,9 @@
 			<if test="status != null">
 				and g.status = #{status}
 			</if>
+			<if test="delFlag != null">
+				and g.del_flag = #{delFlag}
+			</if>
 		</where>
 	</select>
 
@@ -123,6 +126,7 @@
 			<if test="ancestorIds != null">
 				and o.ancestor_ids like concat(#{ancestorIds},'%')
 			</if>
+			and g.del_flag = 0
 		</where>
 	</select>
 
@@ -194,4 +198,19 @@
 			</if>
 		</where>
 	</update>
+
+	<select id="findAllById" parameterType="com.ofl.promotion.manage.guide.entity.filter.AdsOfflineGuideFilter"
+			resultMap="BaseMapper">
+		select
+			<include refid="selectAllColumn"/>
+		from ofl_guide
+		<where>
+			<if test="guideId != null">
+				and guide_id = #{guideId}
+			</if>
+			<if test="phone != null">
+				and phone = #{phone}
+			</if>
+		</where>
+	</select>
 </mapper>

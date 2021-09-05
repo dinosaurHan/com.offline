@@ -45,7 +45,7 @@ public class AdsOfflineAppletServicelmpl implements IAdsOfflineAppletService {
     @Autowired
     private IAdsOfflineEmpService adsOfflineEmpService;
 
-    private final static String QR_CODE_URL = "";
+    private final static String QR_CODE_URL = "http://www.offline-promotion.cn/appdownload/index.html?dyId=8kFB";
 
     @Override
     public ResultDto<String> login(AdsOfflineAppletFilter filter) {
@@ -105,14 +105,14 @@ public class AdsOfflineAppletServicelmpl implements IAdsOfflineAppletService {
     @Override
     public ResultDto<AdsOfflineApplet> getUserInfo(AdsOfflineAppletFilter filter) {
         try{
-            if (StringUtils.isBlank(filter.getBasePhone())){
+            if (StringUtils.isBlank(filter.getPhone())){
                 log.error("getUserInfo phone is empty");
                 return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.PARAM_INVALID_FAIL);
             }
 
             //查询导购id
             AdsOfflineGuideFilter guide = new AdsOfflineGuideFilter();
-            guide.setPhone(filter.getBasePhone());
+            guide.setPhone(filter.getPhone());
             ResultDto<AdsOfflineGuideAuth> resultDto = adsOfflineGuideService.findGuideDyAuth(guide);
             if (resultDto.getRet() != Constant.Code.SUCC){
                 log.error("find guide error param:{}",JSON.toJSONString(filter));
@@ -135,7 +135,9 @@ public class AdsOfflineAppletServicelmpl implements IAdsOfflineAppletService {
             }
 
             //获取二维码
-            adsOfflineApplet.setQrCode(QrCodeUtils.crateB64QRCode(QR_CODE_URL, 200, 200));
+            String url = QR_CODE_URL + "&" + adsOfflineApplet.getGuideId();
+            adsOfflineApplet.setQrCode(QrCodeUtils.crateB64QRCode(url, 200, 200));
+            adsOfflineApplet.setName(resultDto.getData().getGuideName());
             return new ResultDto<>(Constant.Code.SUCC,Constant.ResultMsg.SUCC,adsOfflineApplet);
         }catch (Exception e){
             log.error("getUserInfo fail",e);

@@ -24,15 +24,15 @@ public class AdsOfflineDouyinData implements Serializable {
     /**
      * 一级
      */
-    private String firstLevel;
+    private String oneLevel;
     /**
      * 二级
      */
-    private String secondLevel;
+    private String twoLevel;
     /**
      * 三级
      */
-    private String thirdLevel;
+    private String threeLevel;
     /**
      * 四级
      */
@@ -58,7 +58,7 @@ public class AdsOfflineDouyinData implements Serializable {
      */
     private String phone;
     /**
-     * 无效数量
+     * 门店名称
      */
     private String storeName;
 

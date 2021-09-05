@@ -62,7 +62,7 @@ public class IAdsOfflineDataServicelmpl implements IAdsOfflineDataService {
 
             //设置分页
             PageHelper.startPage(filter.getPage(),filter.getPageSize());
-            filter.setAncestorIds(organizeResult.getData().getAncestorIds() + COMMA + filter.getOrganizeId());
+//            filter.setAncestorIds(organizeResult.getData().getAncestorIds() + COMMA + filter.getOrganizeId());
             //查询汇总数据
             List<AdsOfflineDouyinData> douyinData = adsOfflineDataMapper.count(filter);
             return new ResultDto<>(Constant.Code.SUCC,Constant.ResultMsg.SUCC,new PageInfo<>(douyinData));
@@ -91,7 +91,7 @@ public class IAdsOfflineDataServicelmpl implements IAdsOfflineDataService {
 
             //设置分页
             PageHelper.startPage(filter.getPage(),filter.getPageSize());
-            filter.setAncestorIds(organizeResult.getData().getAncestorIds() + COMMA + filter.getOrganizeId());
+//            filter.setAncestorIds(organizeResult.getData().getAncestorIds() + COMMA + filter.getOrganizeId());
             //查询汇总数据
             List<AdsOfflineDouyinData> douyinData = adsOfflineDataMapper.findAll(filter);
             return new ResultDto<>(Constant.Code.SUCC,Constant.ResultMsg.SUCC,new PageInfo<>(douyinData));
@@ -122,6 +122,9 @@ public class IAdsOfflineDataServicelmpl implements IAdsOfflineDataService {
     @Override
     public ResultDto<Void> importDetail(AdsOfflineDataFilter filter) {
         try{
+//            if (){
+//
+//            }
 
         }catch (Exception e){
             log.error("import detail fail",e);
@@ -142,14 +145,32 @@ public class IAdsOfflineDataServicelmpl implements IAdsOfflineDataService {
     }
 
     @Override
-    public ResultDto<Void> queryConfig(AdsOfflineDataFilter filter) {
+    public ResultDto<PageInfo<AdsOfflineDouyinData>> queryConfig(AdsOfflineDataFilter filter) {
         try{
+            if (filter.getPage() == 0 || filter.getPageSize() == 0 || filter.getOrganizeId() == null){
+                log.error("page || pageSize || organizeId is empty");
+                return new ResultDto<>(Constant.Code.FAIL,"page || pageSize || organizeId is empty");
+            }
 
+            //判断该机构是否存在
+            AdsOfflineOrganizeFilter organizeFilter = new AdsOfflineOrganizeFilter();
+            organizeFilter.setOrganizeId(filter.getOrganizeId());
+            ResultDto<AdsOfflineOrganize> organizeResult = adsOflOrganizeService.queryOrg(organizeFilter);
+            if (organizeResult.getRet() != Constant.Code.SUCC || organizeResult.getData() == null) {
+                log.error("queryOrg fail:{}", JSON.toJSONString(organizeFilter));
+                return new ResultDto<>(Constant.Code.FAIL,"没有该机构");
+            }
+
+            //设置分页
+            PageHelper.startPage(filter.getPage(),filter.getPageSize());
+            filter.setAncestorIds(organizeResult.getData().getAncestorIds() + COMMA + filter.getOrganizeId());
+            //查询汇总数据
+            List<AdsOfflineDouyinData> douyinData = adsOfflineDataMapper.findAll(filter);
+            return new ResultDto<>(Constant.Code.SUCC,Constant.ResultMsg.SUCC,new PageInfo<>(douyinData));
         }catch (Exception e){
             log.error("query config fail",e);
             return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SYSTEM_ERROR);
         }
-        return null;
     }
 
     @Override

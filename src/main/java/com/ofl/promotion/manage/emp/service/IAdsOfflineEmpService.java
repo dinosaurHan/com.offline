@@ -2,6 +2,7 @@ package com.ofl.promotion.manage.emp.service;
 
 import com.ofl.promotion.common.entity.ResultDto;
 import com.ofl.promotion.manage.emp.entity.AdsOfflineEmp;
+import com.ofl.promotion.manage.emp.entity.AdsOfflineEmpMap;
 import com.ofl.promotion.manage.emp.entity.filter.AdsOfflineEmpFilter;
 import com.ofl.promotion.manage.emp.entity.filter.AdsOfflineEmpMapFilter;
 
@@ -24,4 +25,6 @@ public interface IAdsOfflineEmpService {
     ResultDto<Object> login(AdsOfflineEmpFilter filter);
 
     ResultDto<Void> getIdentifyingCode(AdsOfflineEmpFilter filter);
+
+    ResultDto<AdsOfflineEmpMap> getUserInfo(AdsOfflineEmpFilter filter);
 }

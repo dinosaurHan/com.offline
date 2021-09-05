@@ -70,8 +70,15 @@ public class OperateAuthAspects {
             }
 
             //查看操作的机构是否存在
+            Long orgId = leadResult.getData().get(0).getOrganizeId();
+            if (orgId == null){
+                log.error("owner orgId is empty");
+                return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.NO_PERMISSION_FAIL);
+            }
+
+            param.setOwnerOrgId(orgId);
             AdsOfflineOrganizeFilter organizeFilter = new AdsOfflineOrganizeFilter();
-            organizeFilter.setOrganizeId(param.getOrganizeId());
+            organizeFilter.setOrganizeId(orgId);
             ResultDto<AdsOfflineOrganize> organizeResultDto = adsOflOrganizeService.queryOrg(organizeFilter);
             if (organizeResultDto.getRet() != Constant.Code.SUCC || organizeResultDto.getData() == null){
                 log.error("operateAuth queryOrg ret:{}|msg:{}|data:{}",organizeResultDto.getRet(),organizeResultDto.getMsg(),organizeResultDto.getData());

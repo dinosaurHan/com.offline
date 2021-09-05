@@ -49,8 +49,8 @@ public class AdsOflOrganizeController {
      * 编辑机构
      */
     @RequestMapping("/upd")
-    @LoginAuthentication(loginType = Constant.LoginType.PC)
-    @OperateAuth
+//    @LoginAuthentication(loginType = Constant.LoginType.PC)
+//    @OperateAuth
     public ResultDto<Void> updOrgnize(@RequestBody AdsOfflineOrganizeFilter filter){
         return adsOflOrganizeService.updOrgnize(filter);
     }

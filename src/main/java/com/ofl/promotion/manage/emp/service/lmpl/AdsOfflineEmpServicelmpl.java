@@ -6,13 +6,21 @@ import com.ofl.promotion.common.entity.ResultDto;
 import com.ofl.promotion.common.utils.JwtUtils;
 import com.ofl.promotion.common.utils.SMSUtils;
 import com.ofl.promotion.manage.emp.entity.AdsOfflineEmp;
+import com.ofl.promotion.manage.emp.entity.AdsOfflineEmpMap;
 import com.ofl.promotion.manage.emp.entity.filter.AdsOfflineEmpFilter;
+import com.ofl.promotion.manage.emp.entity.filter.AdsOfflineEmpMapFilter;
+import com.ofl.promotion.manage.emp.mapper.IAdsOfflineEmpMapMapper;
 import com.ofl.promotion.manage.emp.mapper.IAdsOfflineEmpMapper;
 import com.ofl.promotion.manage.emp.service.IAdsOfflineEmpService;
+import com.ofl.promotion.manage.organize.entity.AdsOfflineOrganize;
+import com.ofl.promotion.manage.organize.entity.filter.AdsOfflineOrganizeFilter;
+import com.ofl.promotion.manage.organize.mapper.IAdsOfflineOrganizeMapper;
+import com.ofl.promotion.manage.organize.service.IAdsOflOrganizeService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -26,6 +34,12 @@ public class AdsOfflineEmpServicelmpl implements IAdsOfflineEmpService {
 
     @Autowired
     private IAdsOfflineEmpMapper adsOfflineEmpMapper;
+
+    @Autowired
+    private IAdsOfflineEmpMapMapper adsOfflineEmpMapMapper;
+
+    @Autowired
+    private IAdsOfflineOrganizeMapper adsOfflineOrganizeMapper;
 
     @Override
     public ResultDto<AdsOfflineEmp> findOne(AdsOfflineEmpFilter filter) {
@@ -98,8 +112,14 @@ public class AdsOfflineEmpServicelmpl implements IAdsOfflineEmpService {
                 return new ResultDto<>(Constant.Code.FAIL,"phone || identifyCode is empty");
             }
 
-            //校验验证码
-
+            //查询是否存在该成员
+            AdsOfflineEmpFilter empFilter = new AdsOfflineEmpFilter();
+            empFilter.setPhone(filter.getPhone());
+            AdsOfflineEmp offlineEmp = adsOfflineEmpMapper.findOne(empFilter);
+            if (offlineEmp == null){
+                log.error("user login emp is empty");
+                return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.NO_PERMISSION_FAIL);
+            }
 
             //获取token
             String token = JwtUtils.createJWT(filter.getPhone(), 24 * 60 * 60 * 1000,Constant.LoginType.PC);
@@ -119,6 +139,15 @@ public class AdsOfflineEmpServicelmpl implements IAdsOfflineEmpService {
                 return new ResultDto<>(Constant.Code.FAIL,"手机号验证失败,请重新检查你的手机号是否正确");
             }
 
+            //查询是否有该人员
+            AdsOfflineEmpFilter empFilter = new AdsOfflineEmpFilter();
+            empFilter.setPhone(filter.getPhone());
+            AdsOfflineEmp offlineEmp = adsOfflineEmpMapper.findOne(empFilter);
+            if (offlineEmp == null){
+                log.error("user login emp is empty");
+                return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.NO_PERMISSION_FAIL);
+            }
+
             ResultDto<String> smsResult = SMSUtils.sendSMS(filter.getPhone());
             if (smsResult.getRet() != Constant.Code.SUCC){
                 log.error("sendSMS fail ret:{},msg:{}",smsResult.getRet(),smsResult.getMsg());
@@ -129,6 +158,33 @@ public class AdsOfflineEmpServicelmpl implements IAdsOfflineEmpService {
             log.error("emp getIdentifyingCode fail",e);
             return new ResultDto<>(Constant.Code.FAIL, Constant.ResultMsg.SYSTEM_ERROR);
         }
+    }
+
+    @Override
+    public ResultDto<AdsOfflineEmpMap> getUserInfo(AdsOfflineEmpFilter filter) {
+        try{
+            AdsOfflineEmpMapFilter empMapFilter = new AdsOfflineEmpMapFilter();
+            empMapFilter.setPhone(filter.getPhone());
+            List<AdsOfflineEmpMap> lead = adsOfflineEmpMapMapper.findLead(empMapFilter);
+
+            if (CollectionUtils.isEmpty(lead)){
+                return new ResultDto<>(Constant.Code.FAIL,"没有该人员");
+            }
+
+            for (AdsOfflineEmpMap empMap : lead) {
+                empMap.setPhone(filter.getPhone());
+                AdsOfflineOrganizeFilter organizeFilter = new AdsOfflineOrganizeFilter();
+                organizeFilter.setOrganizeId(empMap.getOrganizeId());
+                AdsOfflineOrganize one = adsOfflineOrganizeMapper.findOne(organizeFilter);
+                empMap.setOrganizeLevel(one.getOrganizeLevel());
+            }
+
+            return new ResultDto<>(Constant.Code.SUCC,null,lead.get(0));
+
+        }catch (Exception e){
+
+        }
+        return new ResultDto<>();
     }
 
 }

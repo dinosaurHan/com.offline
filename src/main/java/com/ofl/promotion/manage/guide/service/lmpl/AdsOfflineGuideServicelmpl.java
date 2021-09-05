@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletResponse;
@@ -69,12 +70,12 @@ public class AdsOfflineGuideServicelmpl implements IAdsOfflineGuideService {
     }
 
     @Override
-    public void export(AdsOfflineGuideFilter filter, HttpServletResponse response) {
+    public ResultDto<Void> export(AdsOfflineGuideFilter filter, HttpServletResponse response) {
         try{
             ResultDto<PageInfo<AdsOfflineGuideVo>> pageInfoResultDto = queryGuide(filter);
             if (pageInfoResultDto.getRet() != Constant.Code.SUCC){
                 log.error("export query guide fail ret:{}|msg:{}",pageInfoResultDto.getRet(),pageInfoResultDto.getMsg());
-                return ;
+                return new ResultDto<>(Constant.Code.FAIL,"export query guide fail");
             }
 
             //获取数据
@@ -93,10 +94,10 @@ public class AdsOfflineGuideServicelmpl implements IAdsOfflineGuideService {
             wb.write(os);
             os.flush();
             os.close();
-            return ;
+            return null;
         }catch (Exception e){
             log.error("guide export",e);
-            return;
+            return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SYSTEM_ERROR);
         }
     }
 
@@ -120,8 +121,8 @@ public class AdsOfflineGuideServicelmpl implements IAdsOfflineGuideService {
     public ResultDto<PageInfo<AdsOfflineGuideVo>> queryGuide(AdsOfflineGuideFilter filter) {
 
         try{
-            if (filter.getOrganizeId() == null || filter.getPage() == 0 || filter.getPageSize() == 0){
-                log.error("organizeId || page || pageSize is empty");
+            if (filter.getOrganizeId() == null){
+                log.error("organizeId is empty");
                 return new ResultDto<>(Constant.Code.FAIL,"organizeId || page || pageSize is empty");
             }
 
@@ -212,25 +213,28 @@ public class AdsOfflineGuideServicelmpl implements IAdsOfflineGuideService {
     }
 
     @Override
+    @Transactional
     public ResultDto<Void> delGuide(AdsOfflineGuideFilter filter) {
-        try{
-            if (CollectionUtils.isEmpty(filter.getGuideIdList())){
-                log.error("guideIdList is empty");
-                return new ResultDto<>();
+        if (CollectionUtils.isEmpty(filter.getGuideIdList())) {
+            log.error("guideIdList is empty");
+            return new ResultDto<>();
+        }
+
+        for (Long guideId : filter.getGuideIdList()) {
+            AdsOfflineGuideFilter guideFilter = new AdsOfflineGuideFilter();
+            guideFilter.setGuideId(guideId);
+            AdsOfflineGuide offlineGuide = adsOfflineGuideMapper.findOne(guideFilter);
+            if (offlineGuide == null) {
+                throw new RuntimeException("不存在该导购");
             }
 
-            for (Long guideId : filter.getGuideIdList()) {
-                filter.setGuideId(guideId);
-                filter.setDelFlag(Constant.DelFlag.INVALID);
-                if (adsOfflineGuideMapper.update(filter) < 0){
-                    log.error("batchUpdGuideStatus fail param:{}",JSON.toJSONString(filter));
-                }
+            filter.setGuideId(guideId);
+            filter.setDelFlag(Constant.DelFlag.INVALID);
+            if (adsOfflineGuideMapper.update(filter) < 0) {
+                log.error("batchUpdGuideStatus fail param:{}", JSON.toJSONString(filter));
             }
-        }catch (Exception e){
-            log.error("delGuide fail",e);
-            return new ResultDto<>(Constant.Code.FAIL,Constant.ResultMsg.SYSTEM_ERROR);
         }
-        return null;
+        return new ResultDto<>(Constant.Code.SUCC,Constant.ResultMsg.SUCC);
     }
 
     @Override
@@ -263,38 +267,41 @@ public class AdsOfflineGuideServicelmpl implements IAdsOfflineGuideService {
             //查询上级信息
             AdsOfflineOrganizeFilter organize = new AdsOfflineOrganizeFilter();
             //剔除超级管理员层级
-            String subAncestorIds = adsOfflineGuideVo.getAncestorIds().substring(4,ancestorIds.length());
-            organize.setParentIds(subAncestorIds + COMMA +adsOfflineGuideVo.getOrganizeId());
-            ResultDto<List<AdsOfflineOrganize>> organizeResultDto = adsOflOrganizeService.queryHigherLevel(organize);
-            if (organizeResultDto.getRet() != Constant.Code.SUCC || CollectionUtils.isEmpty(organizeResultDto.getData())){
-                log.error("queryHigherLevel fail:{}", JSON.toJSONString(organize));
-                return;
+            if (adsOfflineGuideVo.getAncestorIds().length() > 4){
+
+                String subAncestorIds = adsOfflineGuideVo.getAncestorIds().substring(4,ancestorIds.length());
+                organize.setParentIds(subAncestorIds + COMMA +adsOfflineGuideVo.getOrganizeId());
+                ResultDto<List<AdsOfflineOrganize>> organizeResultDto = adsOflOrganizeService.queryHigherLevel(organize);
+                if (organizeResultDto.getRet() != Constant.Code.SUCC || CollectionUtils.isEmpty(organizeResultDto.getData())){
+                    log.error("queryHigherLevel fail:{}", JSON.toJSONString(organize));
+                    return;
+                }
+                int level = 1;
+                for (AdsOfflineOrganize offlineOrganize : organizeResultDto.getData()) {
+                    if (StringUtils.isBlank(offlineOrganize.getOrganizeName())){
+                        continue;
+                    }
+
+                    if (level == Constant.LowerLevel.ONE){
+                        adsOfflineGuideVo.setOneLevel(offlineOrganize.getOrganizeName());
+                    }
+
+                    if (level == Constant.LowerLevel.TWO){
+                        adsOfflineGuideVo.setTwoLevel(offlineOrganize.getOrganizeName());
+                    }
+
+                    if (level == Constant.LowerLevel.THREE){
+                        adsOfflineGuideVo.setThreeLevel(offlineOrganize.getOrganizeName());
+                    }
+
+                    if (level == Constant.LowerLevel.FOUR){
+                        adsOfflineGuideVo.setFourLevel(offlineOrganize.getOrganizeName());
+                    }
+
+                    level++;
+                }
             }
 
-            int level = 1;
-            for (AdsOfflineOrganize offlineOrganize : organizeResultDto.getData()) {
-                if (StringUtils.isBlank(offlineOrganize.getOrganizeName())){
-                    continue;
-                }
-
-                if (level == Constant.LowerLevel.ONE){
-                    adsOfflineGuideVo.setOneLevel(offlineOrganize.getOrganizeName());
-                }
-
-                if (level == Constant.LowerLevel.TWO){
-                    adsOfflineGuideVo.setTwoLevel(offlineOrganize.getOrganizeName());
-                }
-
-                if (level == Constant.LowerLevel.THREE){
-                    adsOfflineGuideVo.setThreeLevel(offlineOrganize.getOrganizeName());
-                }
-
-                if (level == Constant.LowerLevel.FOUR){
-                    adsOfflineGuideVo.setFourLevel(offlineOrganize.getOrganizeName());
-                }
-
-                level++;
-            }
         }
     }
 }

@@ -37,8 +37,8 @@ public class AdsOfflineStoreController {
      * 门店导出
      */
     @RequestMapping("/export")
-    public void export(@RequestBody AdsOfflineStoreFilter filter, HttpServletResponse response){
-        adsOfflineStoreService.export(filter, response);
+    public ResultDto<Void> export(@RequestBody AdsOfflineStoreFilter filter, HttpServletResponse response){
+        return adsOfflineStoreService.export(filter, response);
     }
 
     /**

@@ -23,7 +23,7 @@ public interface IAdsOfflineDataService {
 
     ResultDto<Void> exportDetail(AdsOfflineDataFilter filter);
 
-    ResultDto<Void> queryConfig(AdsOfflineDataFilter filter);
+    ResultDto<PageInfo<AdsOfflineDouyinData>> queryConfig(AdsOfflineDataFilter filter);
 
     ResultDto<Void> importConfig(AdsOfflineDataFilter filter);
 

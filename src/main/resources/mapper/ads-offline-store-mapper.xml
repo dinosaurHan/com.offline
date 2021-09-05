@@ -115,6 +115,7 @@
 			<if test="status != null">
 				and s.status = #{status}
 			</if>
+			and s.del_flag = 0
 		</where>
 	</select>
 

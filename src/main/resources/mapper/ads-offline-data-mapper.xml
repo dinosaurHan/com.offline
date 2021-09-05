@@ -6,15 +6,18 @@
 	<resultMap id="BaseMapper" type="com.ofl.promotion.manage.data.entity.AdsOfflineDouyinData">
 		<result property="id" column="id" />
 		<result property="dyId" column="dy_id" />
-		<result property="firstLevel" column="first_level" />
-		<result property="secondLevel" column="second_level" />
-		<result property="thirdLevel" column="third_level" />
+		<result property="oneLevel" column="first_level" />
+		<result property="twoLevel" column="second_level" />
+		<result property="threeLevel" column="third_level" />
 		<result property="fourLevel" column="four_level" />
 		<result property="guideId" column="guide_id" />
-		<result property="guidePhone" column="guide_phone" />
+		<result property="phone" column="guide_phone" />
 		<result property="pullNewCount" column="new_count" />
 		<result property="invPullNewCount" column="inv_count" />
 		<result property="date" column="dt" />
+		<result property="phone" column="phone" />
+		<result property="storeName" column="store_name" />
+		<result property="guideName" column="guide_name" />
 	</resultMap>
 
 	<resultMap id="CountMapper" type="com.ofl.promotion.manage.data.entity.AdsOfflineDataCount">
@@ -77,7 +80,7 @@
 	<select id="findAll" parameterType="com.ofl.promotion.manage.data.entity.filter.AdsOfflineDataFilter"
 			resultMap="BaseMapper" >
 		SELECT d.dy_id, d.first_level, d.second_level, d.third_level, d.four_level, d.guide_id, d.guide_phone, d.new_count,
-			d.inv_count, d.store_name, d.guide_name
+			d.inv_count, d.store_name, d.guide_name,d.dt
 		from ofl_douyin d
 		LEFT JOIN ofl_guide g
 		on(d.guide_id = g.guide_id)
@@ -128,8 +131,11 @@
 			<if test="guideId != null">
 				and d.guide_id = #{guideId}
 			</if>
-			group by d.dt
+			<if test="organizeId != null">
+				and d.org_id = #{organizeId}
+			</if>
 		</where>
+		group by d.dt
 	</select>
 
 <!--	<insert id="add" parameterType="com.ofl.promotion.manage.data.entity.filter.AdsOfflineDataFilter">-->

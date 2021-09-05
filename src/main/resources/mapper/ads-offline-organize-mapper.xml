@@ -28,6 +28,7 @@
             <if test="status != null">
                 and status = #{status}
             </if>
+            and del_flag = 0
         </where>
 	</select>
 
@@ -71,7 +72,7 @@
                 and parent_id  = #{parentId}
             </if>
             and del_flag = 0
-            ORDER BY update_time
+            ORDER BY org_id ASC
         </where>
     </select>
 

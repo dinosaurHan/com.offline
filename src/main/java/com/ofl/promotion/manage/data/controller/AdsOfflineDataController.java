@@ -50,7 +50,7 @@ public class AdsOfflineDataController {
     }
 
     @RequestMapping("/config/query")
-    public ResultDto<Void> queryConfig(@RequestBody AdsOfflineDataFilter filter){
+    public ResultDto<PageInfo<AdsOfflineDouyinData>> queryConfig(@RequestBody AdsOfflineDataFilter filter){
         return adsOfflineDataService.queryConfig(filter);
     }
 

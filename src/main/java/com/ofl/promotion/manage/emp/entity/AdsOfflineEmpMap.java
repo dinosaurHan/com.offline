@@ -37,4 +37,8 @@ public class AdsOfflineEmpMap implements Serializable {
      * 更新时间
      */
     private Long updateTime;
+
+    private String phone;
+
+    private Integer organizeLevel;
 }

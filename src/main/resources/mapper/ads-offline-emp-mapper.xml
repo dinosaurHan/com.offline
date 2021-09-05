@@ -70,8 +70,8 @@
 	</insert>
 
 	<!-- 编辑 -->
-	<update id="updateOflEmp" parameterType="com.ofl.promotion.manage.emp.entity.filter.AdsOfflineEmpFilter">
-		update ofl_emp record
+	<update id="update" parameterType="com.ofl.promotion.manage.emp.entity.filter.AdsOfflineEmpFilter">
+		update ofl_emp
 			<set>
 					<if test = "empId != null ">
 						emp_id = #{empId},
@@ -92,7 +92,7 @@
 						update_time = #{updateTime}
 					</if>
 			</set>
-		where emp_id = #{emp_id}
+		where emp_id = #{empId}
 	</update>
 
 

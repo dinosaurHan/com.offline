@@ -15,5 +15,5 @@ public class AdsOfflineBaseParam {
 
     private int loginType;
 
-    private Long organizeId;
+    private Long ownerOrgId;
 }

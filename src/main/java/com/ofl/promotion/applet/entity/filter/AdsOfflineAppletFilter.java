@@ -19,4 +19,5 @@ public class AdsOfflineAppletFilter extends AdsOfflineApplet {
 
     private String code;
 
+    private String phone;
 }

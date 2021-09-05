@@ -37,7 +37,7 @@ public class AdsOfflineAppletController {
      * 获取推广信息
      */
     @RequestMapping("/promotion/getUserInfo")
-    @LoginAuthentication
+//    @LoginAuthentication
     public ResultDto<AdsOfflineApplet> getUserInfo(@RequestBody AdsOfflineAppletFilter filter){
         return adsAppletService.getUserInfo(filter);
     }
